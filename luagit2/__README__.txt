@@ -1,0 +1,1 @@
+cmake -DLIBGIT2_LIBRARIES=/home/baccy/workspace/com.github.SatyendraBanjare-luagit2/external/libgit2/libgit2-1.0.1/build/install/usr/local/lib/libgit2.a -DLIBGIT2_INCLUDE_DIR=/home/baccy/workspace/com.github.SatyendraBanjare-luagit2/external/libgit2/libgit2-1.0.1/build/install/usr/local/include ..

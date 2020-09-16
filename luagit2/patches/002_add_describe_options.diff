@@ -1,0 +1,305 @@
+diff -uNr luagit2-master/src/luagit2/common/lua_common.c luagit2-master_patched/src/luagit2/common/lua_common.c
+--- luagit2-master/src/luagit2/common/lua_common.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2-master_patched/src/luagit2/common/lua_common.c	2020-09-16 23:59:22.141148925 +0200
+@@ -45,3 +45,131 @@
+ 
+ 	return 1;
+ }
++
++typedef union ADDRESS_UNION
++{
++	void *pv;
++	int *pi;
++	unsigned int *pui;
++	char *pc;
++	const char **ppc;
++} ADDRESS_T;
++
++void parse_option_table(lua_State *L, int iStackIndexOptionTable, const OPTION_DEFINITION_T *ptOptions, size_t sizOptions, void *pvDestination)
++{
++	int iKeyType;
++	const char *pcKey;
++	const OPTION_DEFINITION_T *ptCnt;
++	const OPTION_DEFINITION_T *ptEnd;
++	const OPTION_DEFINITION_T *ptHit;
++	int iOption;
++	const char *pcOption;
++	ADDRESS_T tAdr;
++
++
++	/* Loop over all keys / values in the table. */
++	lua_pushnil(L);
++	while( lua_next(L, iStackIndexOptionTable)!=0 )
++	{
++		/* "lua_next" pushes the next key and value on the stack.
++		 * The key is at offset -2 and the value is at -1 .
++		 */
++		/* The type of the key must be a string. */
++		iKeyType = lua_type(L, -2);
++		if(iKeyType!=LUA_TSTRING)
++		{
++			luaL_error(L, "Found a non-string key in the options table.");
++		}
++		else
++		{
++			pcKey = lua_tostring(L, -2);
++			printf("Found opt %s\n", pcKey);
++
++			/* Look for the key in the options table. */
++			ptCnt = ptOptions;
++			ptEnd = ptOptions + sizOptions;
++			ptHit = NULL;
++			while( ptCnt<ptEnd )
++			{
++				if( strcmp(pcKey, ptCnt->pcKey)==0 )
++				{
++					ptHit = ptCnt;
++					break;
++				}
++				++ptCnt;
++			}
++			if( ptHit==NULL )
++			{
++				luaL_error(L, "unknown option '%s'.", pcKey);
++			}
++			else
++			{
++				/* Get the destination address for the value. */
++				tAdr.pv = pvDestination;
++				tAdr.pc += ptHit->sOffs;
++
++				switch( ptHit->tType )
++				{
++				case OPTION_TYPE_BOOL_AS_INT01:
++					/* Get the value as a boolean. */
++					iOption = lua_toboolean(L, -1);
++					/* Store the integer. */
++					*tAdr.pi = iOption;
++					printf("%s = %d\n", pcKey, iOption);
++					break;
++
++				case OPTION_TYPE_NUMBER_AS_INT:
++					if( lua_isnumber(L, -1)!=1 )
++					{
++						luaL_error(L, "the option %s must be a number.", pcKey);
++					}
++					else
++					{
++						iOption = lua_tointeger(L, -1);
++						*tAdr.pi = iOption;
++						printf("%s = %d\n", pcKey, iOption);
++					}
++					break;
++
++				case OPTION_TYPE_NUMBER_AS_UNSIGNED_INT:
++					if( lua_isnumber(L, -1)!=1 )
++					{
++						luaL_error(L, "the option %s must be a number.", pcKey);
++					}
++					else
++					{
++						iOption = lua_tointeger(L, -1);
++						if( iOption<0 )
++						{
++							luaL_error(L, "the option %s must not be negative.", pcKey);
++						}
++						else
++						{
++							*tAdr.pi = iOption;
++							printf("%s = %d\n", pcKey, iOption);
++						}
++					}
++					break;
++
++				case OPTION_TYPE_STRING:
++					/* The value must be a string. */
++					if (lua_isstring(L, -1) != 1)
++					{
++						luaL_error(L, "the option %s must be a string.", pcKey);
++					}
++					else
++					{
++						/* Get the value as a string. */
++						pcOption = lua_tostring(L, -1);
++						/* Store the pointer to the string. */
++						*tAdr.ppc = pcOption;
++						printf("%s = %s\n", pcKey, pcOption);
++					}
++					break;
++				}
++			}
++		}
++		/* Remove the value from the stack. Keep the key on the stack for the next call to "lua_next". */
++		lua_pop(L, 1);
++	}
++}
+diff -uNr luagit2-master/src/luagit2/common/lua_common.h luagit2-master_patched/src/luagit2/common/lua_common.h
+--- luagit2-master/src/luagit2/common/lua_common.h	2019-06-25 16:05:14.000000000 +0200
++++ luagit2-master_patched/src/luagit2/common/lua_common.h	2020-09-16 23:59:28.697232209 +0200
+@@ -27,4 +27,27 @@
+  */
+ int get_userdata_name(lua_State *L);
+ 
+-#endif
+\ No newline at end of file
++/* All available option types.
++ */
++typedef enum OPTION_TYPE_ENUM
++{
++	OPTION_TYPE_BOOL_AS_INT01 = 0,
++	OPTION_TYPE_NUMBER_AS_INT = 1,
++	OPTION_TYPE_NUMBER_AS_UNSIGNED_INT = 2,
++	OPTION_TYPE_STRING = 3
++} OPTION_TYPE_T;
++
++/* The structure of an option definition.
++ */
++typedef struct OPTION_DEFINITION_STRUCTURE
++{
++	const char *pcKey;
++	OPTION_TYPE_T tType;
++	size_t sOffs;
++} OPTION_DEFINITION_T;
++
++/* A helper function to parse options from a table.
++ */
++void parse_option_table(lua_State *L, int iStackIndexOptionTable, const OPTION_DEFINITION_T *ptOptions, size_t sizOptions, void *pvDestination);
++
++#endif
+diff -uNr luagit2-master/src/luagit2/describe/lua_describe.c luagit2-master_patched/src/luagit2/describe/lua_describe.c
+--- luagit2-master/src/luagit2/describe/lua_describe.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2-master_patched/src/luagit2/describe/lua_describe.c	2020-08-28 17:11:43.789312706 +0200
+@@ -1,5 +1,6 @@
+ #include "lua_describe.h"
+ 
++
+ int lua_git_describe_commit (lua_State *L) {
+ 
+ 	if (lua_gettop(L) != 1) {
+@@ -23,14 +24,48 @@
+ 	return 1;
+ }
+ 
+-int lua_git_describe_workdir (lua_State *L) {
++static const OPTION_DEFINITION_T atDescribeWorkdirOptions[] =
++{
++/*
++	{
++		.pcKey = "describe_strategy",
++		.tType = ,
++		.sOffs = 
++	},
++	{
++		.pcKey = "max_candidates_tags",
++		.tType = ,
++		.sOffs = 
++	},
++*/
++	{
++		.pcKey = "show_commit_oid_as_fallback",
++		.tType = OPTION_TYPE_BOOL_AS_INT01,
++		.sOffs = offsetof(git_describe_options, show_commit_oid_as_fallback)
++	}
++};
+ 
+-	if (lua_gettop(L) != 1) {
+-		return luaL_error(L, "expecting 1 argument : luagit2_repository");
++int lua_git_describe_workdir (lua_State *L) {
++	git_describe_options opts;
++	int args = lua_gettop(L);
++	if (args != 1 && args != 2) {
++		return luaL_error(L, "expecting 1-2 arguments : luagit2_repository [options]");
+ 	}
+ 
+ 	const luagit2_repository *Repo = (luagit2_repository *)luaL_checkudata(L, 1, "luagit2_repository");
+ 
++	/* Initialize the options with default values. */
++	git_describe_options_init(&opts, GIT_DESCRIBE_OPTIONS_VERSION);
++
++	/* Parse the options if there is a 2nd argument which is not nil. */
++	if (args == 2 && lua_isnil(L, 2) != 1) {
++		if (lua_istable(L, 2) != 1) {
++			return luaL_error(L, "argument 2 must be a table");
++		}
++		/* Parse the options. */
++		parse_option_table(L, 2, atDescribeWorkdirOptions, sizeof(atDescribeWorkdirOptions)/sizeof(atDescribeWorkdirOptions[0]), &opts);
++	}
++
+ 	luagit2_describe_result *lua_describe_res = (luagit2_describe_result *)lua_newuserdata(L, sizeof(*lua_describe_res));
+ 	lua_describe_res->describe_result  = NULL;
+ 
+@@ -38,7 +73,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_describe_result *local_describe_result;
+-	check_error_long(git_describe_workdir(&local_describe_result, Repo->repo, NULL), // passing NULL for default values
++	check_error_long(git_describe_workdir(&local_describe_result, Repo->repo, &opts),
+ 	    "Error getting describe result for given repo", NULL);
+ 
+ 	lua_describe_res->describe_result = local_describe_result;
+@@ -46,14 +81,46 @@
+ 	return 1;
+ }
+ 
+-int lua_git_describe_format(lua_State *L) {
++static const OPTION_DEFINITION_T atDescribeFormatOptions[] =
++{
++	{
++		.pcKey = "abbreviated_size",
++		.tType = OPTION_TYPE_NUMBER_AS_UNSIGNED_INT,
++		.sOffs = offsetof(git_describe_format_options, abbreviated_size)
++	},
++	{
++		.pcKey = "always_use_long_format",
++		.tType = OPTION_TYPE_BOOL_AS_INT01,
++		.sOffs = offsetof(git_describe_format_options, always_use_long_format)
++	},
++	{
++		.pcKey = "dirty_suffix",
++		.tType = OPTION_TYPE_STRING,
++		.sOffs = offsetof(git_describe_format_options, dirty_suffix)
++	}
++};
+ 
+-	if (lua_gettop(L) != 1) {
+-		return luaL_error(L, "expecting 1 argument : luagit2_describe_result");
++int lua_git_describe_format(lua_State *L) {
++	git_describe_format_options opts;
++	int args = lua_gettop(L);
++	if (args != 1 && args != 2) {
++		return luaL_error(L, "expecting 1-2 arguments : luagit2_describe_result [options]");
+ 	}
+ 
+ 	const luagit2_describe_result *lua_describe_res = (luagit2_describe_result *)luaL_checkudata(L, 1, "luagit2_describe_result");
+ 
++	/* Initialize the options with default values. */
++	git_describe_format_options_init(&opts, GIT_DESCRIBE_FORMAT_OPTIONS_VERSION);
++
++	/* Parse the options if there is a 2nd argument which is not nil. */
++	if (args == 2 && lua_isnil(L, 2) != 1) {
++		if (lua_istable(L, 2) != 1) {
++			return luaL_error(L, "argument 2 must be a table");
++		}
++		/* Parse the options. */
++		parse_option_table(L, 2, atDescribeFormatOptions, sizeof(atDescribeFormatOptions)/sizeof(atDescribeFormatOptions[0]), &opts);
++	}
++
+ 	luagit2_buf *lua_buf = (luagit2_buf *)lua_newuserdata(L, sizeof(*lua_buf));
+ 	lua_buf->buf = NULL;
+ 
+@@ -62,7 +129,7 @@
+ 
+ 	git_buf local_buf = GIT_BUF_INIT_CONST(NULL, 0);
+ 
+-	check_error_long(git_describe_format(&local_buf, lua_describe_res->describe_result, NULL),
++	check_error_long(git_describe_format(&local_buf, lua_describe_res->describe_result, &opts),
+ 	    "Error formatting describe result to buf ", NULL);
+ 
+ 	lua_buf->buf  = &local_buf;
+@@ -80,4 +147,4 @@
+ 	git_describe_result_free(lua_describe_res->describe_result);
+ 
+ 	return 1;
+-}
+\ No newline at end of file
++}
