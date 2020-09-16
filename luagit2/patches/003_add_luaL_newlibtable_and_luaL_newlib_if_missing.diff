@@ -1,0 +1,19 @@
+diff -uNr luagit2-master/src/main_wrapper.c luagit2-master_patched/src/main_wrapper.c
+--- luagit2-master/src/main_wrapper.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2-master_patched/src/main_wrapper.c	2020-09-17 00:21:05.618405914 +0200
+@@ -546,6 +546,15 @@
+       {NULL, NULL}
+ };
+ 
++#ifndef luaL_newlibtable
++#  define luaL_newlibtable(L, l) \
++  (lua_createtable((L), 0, sizeof((l))/sizeof(*(l))-1))
++#endif
++#ifndef luaL_newlib
++#  define luaL_newlib(L, l) \
++  (luaL_newlibtable((L), (l)), luaL_register((L), NULL, (l)))
++#endif
++
+ int luaopen_luagit2 (lua_State *L) {
+       luaL_newlib(L, luagit2);
+       return 1;
