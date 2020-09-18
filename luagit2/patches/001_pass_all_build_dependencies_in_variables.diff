@@ -1,6 +1,6 @@
 diff -uNr luagit2-master/CMakeLists.txt luagit2-master_patched/CMakeLists.txt
 --- luagit2-master/CMakeLists.txt	2019-06-25 16:05:14.000000000 +0200
-+++ luagit2-master_patched/CMakeLists.txt	2020-09-16 23:52:15.179687138 +0200
++++ luagit2-master_patched/CMakeLists.txt	2020-09-18 19:05:31.958379659 +0200
 @@ -5,8 +5,8 @@
  
  MESSAGE("${CMAKE_MODULE_PATH}")
@@ -12,7 +12,7 @@ diff -uNr luagit2-master/CMakeLists.txt luagit2-master_patched/CMakeLists.txt
   
  include_directories (
      ${CMAKE_CURRENT_BINARY_DIR}
-@@ -65,11 +65,11 @@
+@@ -65,11 +65,14 @@
               ${src_dest}/main_wrapper.c 
   )
  
@@ -20,10 +20,14 @@ diff -uNr luagit2-master/CMakeLists.txt luagit2-master_patched/CMakeLists.txt
 +set(lib_dest "lua_plugins")
  
  OPTION(BUILD_SHARED_LIBS ON)
-  
+- 
 -add_library (${PROJECT_NAME} SHARED ${SOURCES} ${LUA_LIBRARIES})
 -target_link_libraries (${PROJECT_NAME} lua5.3 git2)
++
 +add_library (${PROJECT_NAME} SHARED ${SOURCES})
 +target_link_libraries (${PROJECT_NAME} ${LUA_LIBRARIES} ${LIBGIT2_LIBRARY} ${LIBSSL_LIBRARY} ${LIBCRYPTO_LIBRARY} ${LIBSSH2_LIBRARY} ${LIBGCRYPT_LIBRARY} ${LIBGPG_ERROR_LIBRARY} pthread)
++IF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
++	TARGET_LINK_LIBRARIES(${PROJECT_NAME} rpcrt4 crypt32 winhttp ws2_32)
++ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
  set_target_properties (${PROJECT_NAME} PROPERTIES PREFIX "")
  install(TARGETS ${PROJECT_NAME} DESTINATION "${lib_dest}" )
