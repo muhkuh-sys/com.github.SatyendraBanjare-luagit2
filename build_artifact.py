@@ -75,6 +75,17 @@ astrJONCHKI_SYSTEM = None
 strMake = None
 astrEnv = None
 
+# Check for all system dependencies.
+astrDeb = [
+    'autogen',
+    'dpkg-dev',
+    'gettext',
+    'groff-base',
+    'm4',
+    'pkg-config'
+]
+install.install_host_debs(astrDeb)
+
 if tPlatform['host_distribution_id'] == 'ubuntu':
     if tPlatform['distribution_id'] == 'ubuntu':
         # Build on linux for linux.
