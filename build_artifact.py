@@ -85,11 +85,6 @@ if tPlatform['host_distribution_id'] == 'ubuntu':
         if tPlatform['cpu_architecture'] == tPlatform['host_cpu_architecture']:
             # Build for the build host.
 
-            astrDeb = [
-                'libacl1-dev',
-            ]
-            install.install_host_debs(astrDeb)
-
             astrCMAKE_COMPILER = []
             astrCMAKE_PLATFORM = []
             astrJONCHKI_SYSTEM = []
@@ -97,40 +92,6 @@ if tPlatform['host_distribution_id'] == 'ubuntu':
 
         elif tPlatform['cpu_architecture'] == 'arm64':
             # Build on linux for raspebrry.
-
-            astrDeb = [
-                'libacl1-dev:arm64'
-            ]
-            install.install_foreign_debs(astrDeb, strCfg_workingFolder, strCfg_projectFolder)
-            strLib = os.path.join(
-                strCfg_workingFolder,
-                'packages',
-                'lib',
-                'aarch64-linux-gnu',
-                'libacl.a'
-            )
-            strLibNew = os.path.join(
-                strCfg_workingFolder,
-                'packages',
-                'usr',
-                'lib',
-                'aarch64-linux-gnu',
-                'libacl.a'
-            )
-            if os.path.exists(strLib) is not True:
-                if os.path.exists(strLibNew) is not True:
-                    raise Exeption(
-                        'libacl does not exist in the 2 expected locations '
-                        '%s and %s.' % (
-                            strLib,
-                            strLibNew
-                        )
-                    )
-                else:
-                    os.symlink(
-                        strLibNew,
-                        strLib
-                    )
 
             astrCMAKE_COMPILER = [
                 '-DCMAKE_TOOLCHAIN_FILE=%s/cmake/toolchainfiles/toolchain_ubuntu_arm64.cmake' % strCfg_projectFolder
@@ -266,8 +227,6 @@ astrCmd.append('--build-dependencies')
 astrCmd.append(astrMatch[0])
 subprocess.check_call(' '.join(astrCmd), shell=True, cwd=strCwd, env=astrEnv)
 
-astrCMAKE_COMPILER.append('-Dnet.zlib-zlib_DIR=%s' % os.path.join(strCfg_workingFolder, 'lua5.1', 'build_requirements', 'jonchki', 'install', 'dev', 'cmake'))
-
 # ---------------------------------------------------------------------------
 #
 # Build the externals.
@@ -279,14 +238,11 @@ astrCmd = [
     '-DWORKING_DIR=%s' % strCfg_workingFolder
 ]
 astrCmd.extend(astrCMAKE_COMPILER)
+astrCmd.extend(astrCMAKE_PLATFORM)
 astrCmd.append(os.path.join(strCfg_projectFolder, 'external'))
 strCwd = os.path.join(strCfg_workingFolder, 'external')
 subprocess.check_call(' '.join(astrCmd), shell=True, cwd=strCwd, env=astrEnv)
 subprocess.check_call(strMake, shell=True, cwd=strCwd, env=astrEnv)
-#subprocess.check_call('%s install' % strMake, shell=True, cwd=strCwd, env=astrEnv)
-
-astrCMAKE_COMPILER.append('-DEXTERNAL_LIB_DIR=%s' % os.path.join(strCfg_workingFolder, 'external', 'install', 'lib'))
-astrCMAKE_COMPILER.append('-DEXTERNAL_INCLUDE_DIR=%s' % os.path.join(strCfg_workingFolder, 'external', 'install', 'include'))
 
 # ---------------------------------------------------------------------------
 #
