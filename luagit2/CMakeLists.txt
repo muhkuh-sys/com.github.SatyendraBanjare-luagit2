@@ -67,7 +67,8 @@ IF((${BUILDCFG_ONLY_JONCHKI_CFG} STREQUAL "OFF"))
 	IF(${JONCHKI_PLATFORM_DIST_ID} STREQUAL "windows")
 		# Package a windows build.
 
-		# NOTE: Do not install the library again, there is an "INSTALL" already.
+		INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/install/lua_plugins/luagit2.dll
+		        DESTINATION lua_plugins)
 
 		CONFIGURE_FILE(installer/lua${BUILDCFG_LUA_VERSION}/install_windows.lua
 		               ${CMAKE_CURRENT_BINARY_DIR}/package/install.lua
@@ -78,7 +79,8 @@ IF((${BUILDCFG_ONLY_JONCHKI_CFG} STREQUAL "OFF"))
 	ELSE(${JONCHKI_PLATFORM_DIST_ID} STREQUAL "windows")
 		# Package a linux build.
 
-		# NOTE: Do not install the library again, there is an "INSTALL" already.
+		INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/install/lua_plugins/luagit2.so
+		        DESTINATION lua_plugins)
 
 		CONFIGURE_FILE(installer/lua${BUILDCFG_LUA_VERSION}/install_linux.lua
 		               ${CMAKE_CURRENT_BINARY_DIR}/package/install.lua
