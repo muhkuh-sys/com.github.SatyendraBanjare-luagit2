@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2.3)
 
-PROJECT("libssh2")
+PROJECT("libgit2")
 
 INCLUDE(ExternalProject)
 
