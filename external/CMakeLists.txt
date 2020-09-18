@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 PROJECT("external")
 
-INCLUDE(${CMAKE_HOME_DIRECTORY}/../cmake/platform.cmake)
+INCLUDE(${PRJ_DIR}/cmake/platform.cmake)
 
 SET(net.zlib-zlib_DIR "${CMAKE_BINARY_DIR}/../lua5.1/build_requirements/jonchki/install/dev/cmake")
 
