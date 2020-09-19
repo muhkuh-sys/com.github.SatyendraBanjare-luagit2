@@ -51,8 +51,8 @@ ADD_SUBDIRECTORY(libgcrypt)
 # libssh2 depends on gcrypt.
 ADD_SUBDIRECTORY(libssh2)
 
-# openssl
-ADD_SUBDIRECTORY(openssl)
+# libressl
+ADD_SUBDIRECTORY(libressl)
 
 # libgit2 depends on libssh2 and openssl.
 ADD_SUBDIRECTORY(libgit2)
