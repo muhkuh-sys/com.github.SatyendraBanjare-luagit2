@@ -1,0 +1,2058 @@
+diff -uNr luagit2/src/luagit2/annotated/lua_annotated.c luagit2_patched/src/luagit2/annotated/lua_annotated.c
+--- luagit2/src/luagit2/annotated/lua_annotated.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/annotated/lua_annotated.c	2022-01-27 16:48:40.339600881 +0100
+@@ -16,7 +16,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_annotated_commit *local_annotated_commit;
+-	check_error_long(git_annotated_commit_from_ref(&local_annotated_commit, Repo->repo, lua_ref->reference),
++	check_error_long(L, git_annotated_commit_from_ref(&local_annotated_commit, Repo->repo, lua_ref->reference),
+ 	    "Error create an annotated commit from given reference", NULL);
+ 
+ 	lua_annotated_commit->annotated_commit  = local_annotated_commit;
+@@ -40,7 +40,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_annotated_commit *local_annotated_commit;
+-	check_error_long(git_annotated_commit_from_revspec(&local_annotated_commit, Repo->repo, revspec),
++	check_error_long(L, git_annotated_commit_from_revspec(&local_annotated_commit, Repo->repo, revspec),
+ 	    "Error create an annotated commit from given refspec string", NULL);
+ 
+ 	lua_annotated_commit->annotated_commit  = local_annotated_commit;
+@@ -64,7 +64,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_annotated_commit *local_annotated_commit;
+-	check_error_long(git_annotated_commit_lookup(&local_annotated_commit, Repo->repo, &(lua_oid->oid)),
++	check_error_long(L, git_annotated_commit_lookup(&local_annotated_commit, Repo->repo, &(lua_oid->oid)),
+ 	    "Error create an annotated commit from given object id", NULL);
+ 
+ 	lua_annotated_commit->annotated_commit  = local_annotated_commit;
+@@ -90,7 +90,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_annotated_commit *local_annotated_commit;
+-	check_error_long(git_annotated_commit_from_fetchhead(&local_annotated_commit, Repo->repo, branch_name, remote_url, &(lua_oid->oid)),
++	check_error_long(L, git_annotated_commit_from_fetchhead(&local_annotated_commit, Repo->repo, branch_name, remote_url, &(lua_oid->oid)),
+ 	    "Error create an annotated commit from given object id", NULL);
+ 
+ 	lua_annotated_commit->annotated_commit  = local_annotated_commit;
+diff -uNr luagit2/src/luagit2/blame/lua_blame.c luagit2_patched/src/luagit2/blame/lua_blame.c
+--- luagit2/src/luagit2/blame/lua_blame.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/blame/lua_blame.c	2022-01-27 16:36:26.671580581 +0100
+@@ -20,7 +20,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_blame *local_blame ;
+-	check_error_long(git_blame_buffer(&local_blame, reference->blame, buffer, buffer_len),
++	check_error_long(L, git_blame_buffer(&local_blame, reference->blame, buffer, buffer_len),
+ 	    "Error in generating blame buffer", NULL);
+ 	lua_blame->blame  = local_blame;
+ 
+@@ -46,7 +46,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_blame *local_blame ;
+-	check_error_long(git_blame_file(&local_blame, Repo->repo, path, NULL),
++	check_error_long(L, git_blame_file(&local_blame, Repo->repo, path, NULL),
+ 	    "Error In generating blame for the given file", NULL);
+ 	lua_blame->blame  = local_blame;
+ 
+diff -uNr luagit2/src/luagit2/blob/lua_blob.c luagit2_patched/src/luagit2/blob/lua_blob.c
+--- luagit2/src/luagit2/blob/lua_blob.c	2022-01-27 16:26:23.187563883 +0100
++++ luagit2_patched/src/luagit2/blob/lua_blob.c	2022-01-27 16:37:06.715581689 +0100
+@@ -16,7 +16,7 @@
+     lua_setmetatable(L, -2);
+ 
+     git_oid local_id;
+-    check_error_long(git_blob_create_fromdisk(&local_id, Repo->repo, path),
++    check_error_long(L, git_blob_create_fromdisk(&local_id, Repo->repo, path),
+         "Error creating blob from disk", NULL);
+     obj_id->oid = local_id;
+ 
+@@ -39,7 +39,7 @@
+     lua_setmetatable(L, -2);
+ 
+     git_oid local_id;
+-    check_error_long(git_blob_create_fromworkdir(&local_id, Repo->repo, relative_path),
++    check_error_long(L, git_blob_create_fromworkdir(&local_id, Repo->repo, relative_path),
+         "Error creating blob from work dir", NULL);
+     obj_id->oid = local_id;
+ 
+@@ -64,7 +64,7 @@
+     luaL_newmetatable(L, "luagit2_buf");
+     lua_setmetatable(L, -2);
+ 
+-    check_error_long(git_blob_filtered_content(&(lua_out_buf->buf), lua_blob->blob, as_path, check_for_binary_data),
++    check_error_long(L, git_blob_filtered_content(&(lua_out_buf->buf), lua_blob->blob, as_path, check_for_binary_data),
+         "Error getting filteres content of the blob", NULL);
+ 
+     return 1;
+@@ -119,7 +119,7 @@
+     lua_setmetatable(L, -2);
+ 
+     git_blob *local_blob;
+-    check_error_long(git_blob_lookup(&local_blob, Repo->repo, &(lua_oid->oid)),
++    check_error_long(L, git_blob_lookup(&local_blob, Repo->repo, &(lua_oid->oid)),
+         "Error in looking up for the blob in the given repo", NULL);
+ 
+     lua_blob->blob  = local_blob;
+@@ -144,7 +144,7 @@
+     lua_setmetatable(L, -2);
+ 
+     git_blob *local_blob;
+-    check_error_long(git_blob_lookup_prefix(&local_blob, Repo->repo, &(lua_oid->oid), len),
++    check_error_long(L, git_blob_lookup_prefix(&local_blob, Repo->repo, &(lua_oid->oid), len),
+         "Error in looking up for the blob in the given repo using prefix", NULL);
+ 
+     lua_blob->blob  = local_blob;
+diff -uNr luagit2/src/luagit2/branch/lua_branch.c luagit2_patched/src/luagit2/branch/lua_branch.c
+--- luagit2/src/luagit2/branch/lua_branch.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/branch/lua_branch.c	2022-01-27 16:37:52.371582952 +0100
+@@ -20,7 +20,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_branch_create(&local_ref, lua_repo->repo, branch_name, lua_commit->commit, force),
++	check_error_long(L, git_branch_create(&local_ref, lua_repo->repo, branch_name, lua_commit->commit, force),
+ 	    "Error creating new branch for target commit", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -47,7 +47,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_branch_create_from_annotated(&local_ref, lua_repo->repo, branch_name,
++	check_error_long(L, git_branch_create_from_annotated(&local_ref, lua_repo->repo, branch_name,
+ 	        lua_annotated_commit->annotated_commit, force), "Error creating new branch for target annotated commit", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -61,7 +61,7 @@
+     }
+ 
+ 	const luagit2_reference *lua_ref_branch = (luagit2_reference *)luaL_checkudata(L, 1,"luagit2_reference");
+-	check_error_long(git_branch_delete(lua_ref_branch->reference), "Error deleting the branch", NULL);
++	check_error_long(L, git_branch_delete(lua_ref_branch->reference), "Error deleting the branch", NULL);
+ 	return 1;
+ }
+ 
+@@ -107,7 +107,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_branch_iterator *local_branch_iter;
+-	check_error_long(git_branch_iterator_new(&local_branch_iter, lua_repo->repo, list_flags->branch_type),
++	check_error_long(L, git_branch_iterator_new(&local_branch_iter, lua_repo->repo, list_flags->branch_type),
+ 	    "Error getting branch iterator ", NULL);
+ 	lua_branch_iterator->branch_iterator  = local_branch_iter;
+ 	return 1;
+@@ -132,7 +132,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_branch_lookup(&local_ref, lua_repo->repo, branch_name, lua_branch_type->branch_type),
++	check_error_long(L, git_branch_lookup(&local_ref, lua_repo->repo, branch_name, lua_branch_type->branch_type),
+ 	    "Failed to find the branch in the given repository", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -158,7 +158,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_branch_move(&local_ref, lua_branch_from->reference, new_branch_name, force),
++	check_error_long(L, git_branch_move(&local_ref, lua_branch_from->reference, new_branch_name, force),
+ 	    "Failed to rename/move the branch", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -173,7 +173,7 @@
+ 
+ 	const luagit2_reference *lua_branch_from = (luagit2_reference *)luaL_checkudata(L, 1,"luagit2_reference");
+ 	const char *branch_name = NULL;
+-	check_error_long(git_branch_name(&branch_name, lua_branch_from->reference), "Failed to get the branch name", NULL);
++	check_error_long(L, git_branch_name(&branch_name, lua_branch_from->reference), "Failed to get the branch name", NULL);
+ 	lua_pushstring(L, branch_name);
+ 	return 1;
+ }
+@@ -196,7 +196,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_branch_next(&local_ref, &(lua_branch_t->branch_type), lua_branch_iterator->branch_iterator),
++	check_error_long(L, git_branch_next(&local_ref, &(lua_branch_t->branch_type), lua_branch_iterator->branch_iterator),
+ 	    "Failed to get next branch name", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -211,7 +211,7 @@
+ 
+ 	const luagit2_reference *lua_branch_from = (luagit2_reference *)luaL_checkudata(L, 1,"luagit2_reference");
+ 	const char *upstream_name = luaL_checkstring(L, 2);
+-	check_error_long(git_branch_set_upstream(lua_branch_from->reference, upstream_name),
++	check_error_long(L, git_branch_set_upstream(lua_branch_from->reference, upstream_name),
+ 	    "Failed to set upstream for given branch", NULL);
+ 	return 1;
+ }
+@@ -233,7 +233,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_branch_upstream(&local_ref, lua_branch_base->reference),
++	check_error_long(L, git_branch_upstream(&local_ref, lua_branch_base->reference),
+ 		"Error in getting branch upstream",NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+diff -uNr luagit2/src/luagit2/buf/lua_buf.c luagit2_patched/src/luagit2/buf/lua_buf.c
+--- luagit2/src/luagit2/buf/lua_buf.c	2022-01-27 16:26:23.191563883 +0100
++++ luagit2_patched/src/luagit2/buf/lua_buf.c	2022-01-27 16:38:05.343583311 +0100
+@@ -15,7 +15,7 @@
+ 	luaL_newmetatable(L, "luagit2_buf");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_buf_set(&(lua_buf->buf), string_value, strlen(string_value)),
++	check_error_long(L, git_buf_set(&(lua_buf->buf), string_value, strlen(string_value)),
+ 	    "Unable to set char in the buf", NULL);
+ 
+ 	return 1;
+diff -uNr luagit2/src/luagit2/checkout/lua_checkout.c luagit2_patched/src/luagit2/checkout/lua_checkout.c
+--- luagit2/src/luagit2/checkout/lua_checkout.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/checkout/lua_checkout.c	2022-01-27 16:38:22.123583776 +0100
+@@ -12,7 +12,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_checkout_options local_checkout_opts;
+-	check_error_long(git_checkout_init_options(&local_checkout_opts, GIT_CHECKOUT_OPTIONS_VERSION),
++	check_error_long(L, git_checkout_init_options(&local_checkout_opts, GIT_CHECKOUT_OPTIONS_VERSION),
+ 	    "Error initializing checkout options", NULL);
+ 
+ 	lua_checkout_opts->checkout_opts = local_checkout_opts;
+@@ -29,7 +29,7 @@
+ 	const luagit2_repository *Repo = (luagit2_repository *)luaL_checkudata(L, 1, "luagit2_repository");
+ 	const luagit2_checkout_options *lua_checkout_opts = (luagit2_checkout_options *)luaL_checkudata(L, 2, "luagit2_checkout_options");
+ 
+-	check_error_long(git_checkout_head( Repo->repo, &(lua_checkout_opts->checkout_opts)),
++	check_error_long(L, git_checkout_head( Repo->repo, &(lua_checkout_opts->checkout_opts)),
+ 	    "Error checking out to HEAD", NULL);
+ 
+ 	return 1;
+@@ -45,7 +45,7 @@
+ 	const luagit2_index *lua_index = (luagit2_index *)luaL_checkudata(L, 2, "luagit2_index");
+ 	const luagit2_checkout_options *lua_checkout_opts = (luagit2_checkout_options *)luaL_checkudata(L, 3, "luagit2_checkout_options");
+ 
+-	check_error_long(git_checkout_index( Repo->repo, lua_index->index, &(lua_checkout_opts->checkout_opts)),
++	check_error_long(L, git_checkout_index( Repo->repo, lua_index->index, &(lua_checkout_opts->checkout_opts)),
+ 	    "Error checking out index", NULL);
+ 
+ 	return 1;
+@@ -61,7 +61,7 @@
+ 	const luagit2_object *lua_object = (luagit2_object *)luaL_checkudata(L, 2, "luagit2_object");
+ 	const luagit2_checkout_options *lua_checkout_opts = (luagit2_checkout_options *)luaL_checkudata(L, 3, "luagit2_checkout_options");
+ 
+-	check_error_long(git_checkout_tree( Repo->repo, lua_object->object, &(lua_checkout_opts->checkout_opts)),
++	check_error_long(L, git_checkout_tree( Repo->repo, lua_object->object, &(lua_checkout_opts->checkout_opts)),
+ 	    "Error checking out index", NULL);
+ 
+ 	return 1;
+diff -uNr luagit2/src/luagit2/clone/lua_clone.c luagit2_patched/src/luagit2/clone/lua_clone.c
+--- luagit2/src/luagit2/clone/lua_clone.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/clone/lua_clone.c	2022-01-27 16:38:32.035584050 +0100
+@@ -90,7 +90,7 @@
+ 	clone_opts.fetch_opts.callbacks.payload = &pd;
+ 	}
+ 
+-	check_error_long(git_clone(&cloned_repo, url, path, &clone_opts),
++	check_error_long(L, git_clone(&cloned_repo, url, path, &clone_opts),
+ 		"Failed to clone the given repository",url);
+ 
+ 	return 1;
+diff -uNr luagit2/src/luagit2/commit/lua_commit.c luagit2_patched/src/luagit2/commit/lua_commit.c
+--- luagit2/src/luagit2/commit/lua_commit.c	2022-01-27 16:26:23.191563883 +0100
++++ luagit2_patched/src/luagit2/commit/lua_commit.c	2022-01-27 16:39:09.455585085 +0100
+@@ -72,7 +72,7 @@
+ 	luaL_newmetatable(L, "luagit2_buf");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_commit_extract_signature(&(lua_signature_buf->buf), &(lua_extra_buf->buf),
++	check_error_long(L, git_commit_extract_signature(&(lua_signature_buf->buf), &(lua_extra_buf->buf),
+ 	        Repo->repo, &(Commit_id->oid), NULL), "Error extracting signature from given commit id", NULL);
+ 
+ 	return 2;
+@@ -95,7 +95,7 @@
+ 	luaL_newmetatable(L, "luagit2_buf");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_commit_header_field(&(lua_header_buf->buf), Commit->commit, field),
++	check_error_long(L, git_commit_header_field(&(lua_header_buf->buf), Commit->commit, field),
+ 	    "Error getting header field for the given commit", NULL);
+ 
+ 	return 1;
+@@ -119,7 +119,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_commit *local_commit;
+-	check_error_long(git_commit_lookup(&(local_commit), Repo->repo, &(Commit_id->oid)),
++	check_error_long(L, git_commit_lookup(&(local_commit), Repo->repo, &(Commit_id->oid)),
+ 	    "Failed to look up the commit in the given repo", NULL);
+ 
+ 	lua_Commit->commit  = local_commit;
+@@ -146,7 +146,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_commit *local_commit;
+-	check_error_long(git_commit_lookup_prefix(&(local_commit), Repo->repo, &(Commit_id->oid), length),
++	check_error_long(L, git_commit_lookup_prefix(&(local_commit), Repo->repo, &(Commit_id->oid), length),
+ 	    "Failed to look up the commit in given repo using length of prefix", NULL);
+ 
+ 	lua_Commit->commit  = local_commit;
+@@ -208,7 +208,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_commit *local_commit;
+-	check_error_long(git_commit_nth_gen_ancestor(&(local_commit), lua_commit->commit, Nth_ancestor_gen),
++	check_error_long(L, git_commit_nth_gen_ancestor(&(local_commit), lua_commit->commit, Nth_ancestor_gen),
+ 	    "Failed to get the nth generation ancestor for the given commit", NULL);
+ 
+ 	lua_ancesstor_commit->commit  = local_commit;
+@@ -234,7 +234,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_commit *local_commit;
+-	check_error_long(git_commit_parent(&(local_commit), lua_commit->commit, position),
++	check_error_long(L, git_commit_parent(&(local_commit), lua_commit->commit, position),
+ 	    "Failed to get the parent commit for the given commit", NULL);
+ 
+ 	lua_Commit->commit  = local_commit;
+@@ -327,7 +327,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_tree *local_tree_obj;
+-	check_error_long(git_commit_tree(&local_tree_obj, lua_commit->commit),
++	check_error_long(L, git_commit_tree(&local_tree_obj, lua_commit->commit),
+ 	    "Failed to get the tree for given commit", NULL);
+ 
+ 	lua_tree->tree  = local_tree_obj;
+@@ -388,7 +388,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_oid;
+-	check_error_long(git_commit_create_v(&local_oid,
++	check_error_long(L, git_commit_create_v(&local_oid,
+ 	        Repo->repo,
+ 	        "HEAD",
+ 	        Author_sign->sign,
+@@ -426,7 +426,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_oid;
+-	check_error_long(git_commit_create_v(&local_oid,
++	check_error_long(L, git_commit_create_v(&local_oid,
+ 	        Repo->repo,
+ 	        NULL,
+ 	        Author_sign->sign,
+@@ -477,7 +477,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_oid;
+-	check_error_long(git_commit_create_with_signature(&local_oid, Repo->repo, commit_content, commit_sign,
++	check_error_long(L, git_commit_create_with_signature(&local_oid, Repo->repo, commit_content, commit_sign,
+ 		NULL) //passing NULL for default value gpgsig.
+ 	, "Unable to create commit", NULL);
+ 	new_commit_id->oid = local_oid;
+@@ -506,7 +506,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_oid;
+-	check_error_long(git_commit_create_v(&local_oid,
++	check_error_long(L, git_commit_create_v(&local_oid,
+ 	        Repo->repo,
+ 	        "HEAD",
+ 	        Author_sign->sign,
+diff -uNr luagit2/src/luagit2/common/lua_common.c luagit2_patched/src/luagit2/common/lua_common.c
+--- luagit2/src/luagit2/common/lua_common.c	2022-01-27 16:26:23.183563883 +0100
++++ luagit2_patched/src/luagit2/common/lua_common.c	2022-01-27 16:31:30.567572388 +0100
+@@ -1,19 +1,19 @@
+ #include "lua_common.h"
+ 
+-void check_error(int error_code, const char *action) {
++void check_error(lua_State *L, int error_code, const char *action) {
+ 	// Get the last error and print it.
+ 	const git_error *error = giterr_last();
+ 	if (!error_code) {
+ 		return;
+ 	}
+ 
+-	printf("Error %d %s - %s\n", error_code, action,
++	luaL_error(L, "Error %d %s - %s\n", error_code, action,
+ 	    (error && error->message) ? error->message : "???");
+ 
+ 	exit(1);
+ }
+ 
+-void check_error_long(int error, const char *message, const char *extra) {
++void check_error_long(lua_State *L, int error, const char *message, const char *extra) {
+ 	const git_error *lg2err;
+ 	const char *lg2msg = "", *lg2spacer = "";
+ 
+@@ -27,10 +27,10 @@
+ 	}
+ 
+ 	if (extra)
+-		printf( "%s '%s' [%d]%s%s\n",
++		luaL_error(L, "%s '%s' [%d]%s%s\n",
+ 		    message, extra, error, lg2spacer, lg2msg);
+ 	else
+-		printf( "%s [%d]%s%s\n",
++		luaL_error(L, "%s [%d]%s%s\n",
+ 		    message, error, lg2spacer, lg2msg);
+ 
+ 	exit(1);
+diff -uNr luagit2/src/luagit2/common/lua_common.h luagit2_patched/src/luagit2/common/lua_common.h
+--- luagit2/src/luagit2/common/lua_common.h	2022-01-27 16:26:23.183563883 +0100
++++ luagit2_patched/src/luagit2/common/lua_common.h	2022-01-27 16:32:00.719573222 +0100
+@@ -17,11 +17,11 @@
+  * to prints out the error and any extra message if passed
+  * to the user.
+  */
+-void check_error(int error_code, const char *action);
++void check_error(lua_State *L, int error_code, const char *action);
+ 
+ /* Extended version of check_error() to print extra messages.
+  */
+-void check_error_long(int error, const char *message, const char *extra);
++void check_error_long(lua_State *L, int error, const char *message, const char *extra);
+ 
+ /* Helper function to get the userdata's metatable name.
+  */
+diff -uNr luagit2/src/luagit2/config/lua_config.c luagit2_patched/src/luagit2/config/lua_config.c
+--- luagit2/src/luagit2/config/lua_config.c	2022-01-27 16:26:23.191563883 +0100
++++ luagit2_patched/src/luagit2/config/lua_config.c	2022-01-27 16:40:34.387587435 +0100
+@@ -11,7 +11,7 @@
+ 	parent_cfg = (luagit2_config *)luaL_checkudata(L, 1,"luagit2_config");
+ 	const char *name = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_config_delete_entry(parent_cfg->cfg, name),
++	check_error_long(L, git_config_delete_entry(parent_cfg->cfg, name),
+ 	    "Unable to delete the entry from given config, entry's name", NULL);
+ 
+ 	return 1;
+@@ -29,7 +29,7 @@
+ 	const char *name = luaL_checkstring(L, 2);
+ 	const char *regex = luaL_checkstring(L, 3);
+ 
+-	check_error_long(git_config_delete_multivar(parent_cfg->cfg, name, regex),
++	check_error_long(L, git_config_delete_multivar(parent_cfg->cfg, name, regex),
+ 	    "Unable to delete the entry from given config , entry's name and regex", NULL);
+ 
+ 	return 1;
+@@ -50,7 +50,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_config_find_global(&(lua_buf->buf)),
++	check_error_long(L, git_config_find_global(&(lua_buf->buf)),
+ 	    "Unable to find global config ", NULL);
+ 	return 1;
+ }
+@@ -70,7 +70,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_config_find_programdata(&(lua_buf->buf)),
++	check_error_long(L, git_config_find_programdata(&(lua_buf->buf)),
+ 	    "Unable to find locate the path to the configuration file in ProgramData", NULL);
+ 
+ 
+@@ -93,7 +93,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_config_find_system(&(lua_buf->buf)),
++	check_error_long(L, git_config_find_system(&(lua_buf->buf)),
+ 	    "Unable to locate the path to the system configuration file", NULL);
+ 
+ 	return 1;
+@@ -115,7 +115,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_config_find_xdg(&(lua_buf->buf)),
++	check_error_long(L, git_config_find_xdg(&(lua_buf->buf)),
+ 	    "Unable to Locate the path to the global xdg compatible configuration file", NULL);
+ 
+ 	return 1;
+@@ -133,7 +133,7 @@
+ 	parent_cfg = (luagit2_config *)luaL_checkudata(L, 1,"luagit2_config");
+ 	const char *name = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_config_get_int32(&out, parent_cfg->cfg, name),
++	check_error_long(L, git_config_get_int32(&out, parent_cfg->cfg, name),
+ 	    "Unable to get integer configuration variable", NULL);
+ 
+ 	lua_pushinteger(L, out);
+@@ -152,7 +152,7 @@
+ 	parent_cfg = (luagit2_config *)luaL_checkudata(L, 1,"luagit2_config");
+ 	const char *name = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_config_get_int64(&out, parent_cfg->cfg, name),
++	check_error_long(L, git_config_get_int64(&out, parent_cfg->cfg, name),
+ 	    "Unable to get long integer configuration variable", NULL);
+ 
+ 	lua_pushinteger(L, out);
+@@ -196,7 +196,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_config_get_path(&(lua_buf->buf), parent_cfg->cfg, name),
++	check_error_long(L, git_config_get_path(&(lua_buf->buf), parent_cfg->cfg, name),
+ 	    "Unable to get path for the config file", NULL);
+ 
+ 	return 1;
+@@ -239,7 +239,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_config_get_string_buf(&(lua_buf->buf), parent_cfg->cfg, name),
++	check_error_long(L, git_config_get_string_buf(&(lua_buf->buf), parent_cfg->cfg, name),
+ 	    "Unable to get string buffer from the config", NULL);
+ 
+ 	return 1;
+@@ -261,7 +261,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_config_open_default(&local_config),
++	check_error_long(L, git_config_open_default(&local_config),
+ 	    "Unable to open default config", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -287,7 +287,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_config_open_global(&local_config, parent_cfg->cfg),
++	check_error_long(L, git_config_open_global(&local_config, parent_cfg->cfg),
+ 	    "Unable to open global configuration", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -314,7 +314,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_config_open_level(&local_config, parent_cfg->cfg, Level->level),
++	check_error_long(L, git_config_open_level(&local_config, parent_cfg->cfg, Level->level),
+ 	    "Unable to open specified configuration", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -339,7 +339,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_config_open_ondisk(&local_config, path),
++	check_error_long(L, git_config_open_ondisk(&local_config, path),
+ 	    "Unable to open cifiguration file from disk", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -354,7 +354,7 @@
+ 
+ 	const char *value = luaL_checkstring(L, 1);
+ 	int out;
+-	check_error_long(git_config_parse_bool(&out, value),
++	check_error_long(L, git_config_parse_bool(&out, value),
+ 	    "Error parsing string as bool value", NULL);
+ 	lua_pushinteger(L, out);
+ 
+@@ -369,7 +369,7 @@
+ 
+ 	const char *value = luaL_checkstring(L, 1);
+ 	int32_t out;
+-	check_error_long(git_config_parse_int32(&out, value),
++	check_error_long(L, git_config_parse_int32(&out, value),
+ 	    "Error parsing string as integer value", NULL);
+ 	lua_pushinteger(L, out);
+ 
+@@ -384,7 +384,7 @@
+ 
+ 	const char *value = luaL_checkstring(L, 1);
+ 	int64_t out;
+-	check_error_long(git_config_parse_int64(&out, value),
++	check_error_long(L, git_config_parse_int64(&out, value),
+ 	    "Error parsing string as long integer value", NULL);
+ 	lua_pushinteger(L, out);
+ 
+@@ -407,7 +407,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_config_parse_path(&(lua_buf->buf), path_value),
++	check_error_long(L, git_config_parse_path(&(lua_buf->buf), path_value),
+ 	    "Error parsing string as path value", NULL);
+ 
+ 	return 1;
+@@ -425,7 +425,7 @@
+ 	const char *name = luaL_checkstring(L, 2);
+ 	int value = luaL_checkinteger(L, 3);
+ 
+-	check_error_long(git_config_set_bool(parent_cfg->cfg, name, value),
++	check_error_long(L, git_config_set_bool(parent_cfg->cfg, name, value),
+ 	    "Error setting bool in config", NULL);
+ 
+ 	return 1;
+@@ -443,7 +443,7 @@
+ 	const char *name = luaL_checkstring(L, 2);
+ 	int32_t value = luaL_checkinteger(L, 3);
+ 
+-	check_error_long(git_config_set_int32(parent_cfg->cfg, name, value),
++	check_error_long(L, git_config_set_int32(parent_cfg->cfg, name, value),
+ 	    "Error setting long integer value in config", NULL);
+ 
+ 	return 1;
+@@ -461,7 +461,7 @@
+ 	const char *name = luaL_checkstring(L, 2);
+ 	int64_t value = luaL_checkinteger(L, 3);
+ 
+-	check_error_long(git_config_set_int64(parent_cfg->cfg, name, value),
++	check_error_long(L, git_config_set_int64(parent_cfg->cfg, name, value),
+ 	    "Error setting long integer value in config", NULL);
+ 
+ 	return 1;
+@@ -480,7 +480,7 @@
+ 	const char *regex = luaL_checkstring(L, 3);
+ 	const char *value = luaL_checkstring(L, 4);
+ 
+-	check_error_long(git_config_set_multivar(parent_cfg->cfg, name, regex, value),
++	check_error_long(L, git_config_set_multivar(parent_cfg->cfg, name, regex, value),
+ 	    "Error setting multivar value in config", NULL);
+ 
+ 	return 1;
+@@ -498,7 +498,7 @@
+ 	const char *name = luaL_checkstring(L, 2);
+ 	const char *value = luaL_checkstring(L, 3);
+ 
+-	check_error_long(git_config_set_string(parent_cfg->cfg, name, value),
++	check_error_long(L, git_config_set_string(parent_cfg->cfg, name, value),
+ 	    "Error setting string value in config", NULL);
+ 
+ 	return 1;
+@@ -523,7 +523,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_config_snapshot(&local_config, parent_cfg->cfg),
++	check_error_long(L, git_config_snapshot(&local_config, parent_cfg->cfg),
+ 	    "Error getting config snapshot", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -554,7 +554,7 @@
+ 	const luagit2_repository *Repository = (luagit2_repository *)luaL_checkudata(L, 4,"luagit2_repository");
+ 	const int force = luaL_checkinteger(L, 5);
+ 
+-	check_error_long(git_config_add_file_ondisk(Config_to_write->cfg,
++	check_error_long(L, git_config_add_file_ondisk(Config_to_write->cfg,
+ 	        path, cfg_lvl->level, Repository->repo, force), "Unable to add file ondisk", NULL);
+ 	return 1;
+ }
+@@ -574,7 +574,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_config_new(&local_config),
++	check_error_long(L, git_config_new(&local_config),
+ 	    "Error creating new config", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -599,7 +599,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config_iterator *local_config_itr;
+-	check_error_long(git_config_iterator_new(&local_config_itr, parent_cfg->cfg),
++	check_error_long(L, git_config_iterator_new(&local_config_itr, parent_cfg->cfg),
+ 	    "Error creating new iterator", NULL);
+ 	lua_cfg_itr->config_iterator  = local_config_itr;
+ 
+@@ -636,7 +636,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config_entry *local_config_entry;
+-	check_error_long(git_config_get_entry(&local_config_entry, parent_cfg->cfg, name),
++	check_error_long(L, git_config_get_entry(&local_config_entry, parent_cfg->cfg, name),
+ 	    "Unable to get the entry", NULL);
+ 	lua_cfg_entry->config_entry  = local_config_entry;
+ 	return 1;
+@@ -658,7 +658,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config_entry *local_config_entry;
+-	check_error_long(git_config_next(&local_config_entry, cfg_itr->config_iterator),
++	check_error_long(L, git_config_next(&local_config_entry, cfg_itr->config_iterator),
+ 	    "Unable to get next entry", NULL);
+ 	lua_cfg_entry->config_entry  = local_config_entry;
+ 
+diff -uNr luagit2/src/luagit2/cred/lua_cred.c luagit2_patched/src/luagit2/cred/lua_cred.c
+--- luagit2/src/luagit2/cred/lua_cred.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/cred/lua_cred.c	2022-01-27 16:40:52.427587935 +0100
+@@ -16,7 +16,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_cred *out = NULL;
+-	check_error_long(git_cred_default_new(&out),
++	check_error_long(L, git_cred_default_new(&out),
+ 	    "Error creating a default luagit2_cred object", NULL);
+ 
+ 	cred_obj->git_cred_object  = out;
+@@ -41,7 +41,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_cred *out = NULL;
+-	check_error_long(git_cred_ssh_key_from_agent(&out, username),
++	check_error_long(L, git_cred_ssh_key_from_agent(&out, username),
+ 	    "Error creating SSH key credential from agent name", NULL);
+ 
+ 	cred_obj->git_cred_object  = out;
+@@ -69,7 +69,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_cred *out = NULL;
+-	check_error_long(git_cred_ssh_key_memory_new(&out, username, publickey, privatekey, passphrase),
++	check_error_long(L, git_cred_ssh_key_memory_new(&out, username, publickey, privatekey, passphrase),
+ 	    "Error creating in memory SSH key credentials from given details", NULL);
+ 
+ 	cred_obj->git_cred_object  = out;
+@@ -97,7 +97,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_cred *out = NULL;
+-	check_error_long(git_cred_ssh_key_new(&out, username, publickey, privatekey, passphrase),
++	check_error_long(L, git_cred_ssh_key_new(&out, username, publickey, privatekey, passphrase),
+ 	    "Error creating SSH key credentials from given details", NULL);
+ 
+ 	cred_obj->git_cred_object  = out;
+@@ -122,7 +122,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_cred *out = NULL;
+-	check_error_long(git_cred_username_new(&out, username),
++	check_error_long(L, git_cred_username_new(&out, username),
+ 	    "Error generating credentials from given user name", NULL);
+ 
+ 	cred_obj->git_cred_object  = out;
+@@ -148,7 +148,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_cred *out = NULL;
+-	check_error_long(git_cred_userpass_plaintext_new(&out, username, password),
++	check_error_long(L, git_cred_userpass_plaintext_new(&out, username, password),
+ 	    "Error generating credentials from given username and password ", NULL);
+ 
+ 	cred_obj->git_cred_object  = out;
+diff -uNr luagit2/src/luagit2/describe/lua_describe.c luagit2_patched/src/luagit2/describe/lua_describe.c
+--- luagit2/src/luagit2/describe/lua_describe.c	2022-01-27 16:26:23.191563883 +0100
++++ luagit2_patched/src/luagit2/describe/lua_describe.c	2022-01-27 16:41:09.095588396 +0100
+@@ -16,7 +16,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_describe_result *local_describe_result;
+-	check_error_long(git_describe_commit(&local_describe_result, lua_object->object, NULL), // passing NULL for default values
++	check_error_long(L, git_describe_commit(&local_describe_result, lua_object->object, NULL), // passing NULL for default values
+ 	    "Error getting describe result for given commit object", NULL);
+ 
+ 	lua_describe_res->describe_result = local_describe_result;
+@@ -73,7 +73,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_describe_result *local_describe_result;
+-	check_error_long(git_describe_workdir(&local_describe_result, Repo->repo, &opts),
++	check_error_long(L, git_describe_workdir(&local_describe_result, Repo->repo, &opts),
+ 	    "Error getting describe result for given repo", NULL);
+ 
+ 	lua_describe_res->describe_result = local_describe_result;
+@@ -127,7 +127,7 @@
+ 	luaL_newmetatable(L, "luagit2_buf");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_describe_format(&(lua_buf->buf), lua_describe_res->describe_result, &opts),
++	check_error_long(L, git_describe_format(&(lua_buf->buf), lua_describe_res->describe_result, &opts),
+ 	    "Error formatting describe result to buf ", NULL);
+ 
+ 	return 1;
+diff -uNr luagit2/src/luagit2/diff/lua_diff.c luagit2_patched/src/luagit2/diff/lua_diff.c
+--- luagit2/src/luagit2/diff/lua_diff.c	2022-01-27 16:26:23.191563883 +0100
++++ luagit2_patched/src/luagit2/diff/lua_diff.c	2022-01-27 16:41:52.391589594 +0100
+@@ -12,7 +12,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff_options local_diff_opts;
+-	check_error_long(git_diff_init_options(&local_diff_opts, GIT_DIFF_OPTIONS_VERSION),
++	check_error_long(L, git_diff_init_options(&local_diff_opts, GIT_DIFF_OPTIONS_VERSION),
+ 	    "Error initializing diff options", NULL);
+ 
+ 	lua_diff_opts->diff_opts = local_diff_opts;
+@@ -34,7 +34,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff_stats *local_diff_stats;
+-	check_error_long(git_diff_get_stats(&local_diff_stats, lua_diff->diff),
++	check_error_long(L, git_diff_get_stats(&local_diff_stats, lua_diff->diff),
+ 	    "Error getting diff stats for given luagit2_diff", NULL);
+ 
+ 	lua_diff_stats->diff_stats = local_diff_stats;
+@@ -60,7 +60,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff *local_diff;
+-	check_error_long(git_diff_index_to_index(&local_diff, Repo->repo, index_old->index, index_new->index, &(lua_diff_opts->diff_opts)),
++	check_error_long(L, git_diff_index_to_index(&local_diff, Repo->repo, index_old->index, index_new->index, &(lua_diff_opts->diff_opts)),
+ 	    "Error in getting diff data for given indexes ", NULL);
+ 
+ 	lua_diff->diff = local_diff;
+@@ -85,7 +85,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff *local_diff;
+-	check_error_long(git_diff_index_to_workdir(&local_diff, Repo->repo, lua_index->index, &(lua_diff_opts->diff_opts)),
++	check_error_long(L, git_diff_index_to_workdir(&local_diff, Repo->repo, lua_index->index, &(lua_diff_opts->diff_opts)),
+ 	    "Error in getting diff data for index to workdir ", NULL);
+ 
+ 	lua_diff->diff = local_diff;
+@@ -114,7 +114,7 @@
+ 	const luagit2_diff *lua_diff_onto = (luagit2_diff *)luaL_checkudata(L, 1, "luagit2_diff");
+ 	const luagit2_diff *lua_diff_from = (luagit2_diff *)luaL_checkudata(L, 2, "luagit2_diff");
+ 
+-	check_error_long(git_diff_merge(lua_diff_onto->diff, lua_diff_from->diff),
++	check_error_long(L, git_diff_merge(lua_diff_onto->diff, lua_diff_from->diff),
+ 	    "Error merging one diff onto other ", NULL);
+ 
+ 	return 1;
+@@ -184,7 +184,7 @@
+ 	luaL_newmetatable(L, "luagit2_buf");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_diff_stats_to_buf(&(lua_buf->buf), lua_diff_stats->diff_stats, lua_stats_format->stats_format, width),
++	check_error_long(L, git_diff_stats_to_buf(&(lua_buf->buf), lua_diff_stats->diff_stats, lua_stats_format->stats_format, width),
+ 	    "Error converting diff stats to buff ", NULL);
+ 
+ 	return 1;
+@@ -205,7 +205,7 @@
+ 	luaL_newmetatable(L, "luagit2_buf");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_diff_to_buf(&(lua_buf->buf), lua_diff->diff, lua_diff_format->diff_format),
++	check_error_long(L, git_diff_to_buf(&(lua_buf->buf), lua_diff->diff, lua_diff_format->diff_format),
+ 	    "Error converting diff to buff ", NULL);
+ 
+ 	return 1;
+@@ -229,7 +229,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff *local_diff;
+-	check_error_long(git_diff_tree_to_index(&local_diff, Repo->repo, lua_tree->tree, lua_index->index, &(lua_diff_opts->diff_opts)),
++	check_error_long(L, git_diff_tree_to_index(&local_diff, Repo->repo, lua_tree->tree, lua_index->index, &(lua_diff_opts->diff_opts)),
+ 	    "Error in getting diff data for tree to index ", NULL);
+ 
+ 	lua_diff->diff = local_diff;
+@@ -255,7 +255,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff *local_diff;
+-	check_error_long(git_diff_tree_to_tree(&local_diff, Repo->repo, tree_old->tree, tree_new->tree, &(lua_diff_opts->diff_opts)),
++	check_error_long(L, git_diff_tree_to_tree(&local_diff, Repo->repo, tree_old->tree, tree_new->tree, &(lua_diff_opts->diff_opts)),
+ 	    "Error in getting diff data for given trees ", NULL);
+ 
+ 	lua_diff->diff = local_diff;
+@@ -280,7 +280,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff *local_diff;
+-	check_error_long(git_diff_tree_to_workdir(&local_diff, Repo->repo, lua_tree->tree, &(lua_diff_opts->diff_opts)),
++	check_error_long(L, git_diff_tree_to_workdir(&local_diff, Repo->repo, lua_tree->tree, &(lua_diff_opts->diff_opts)),
+ 	    "Error in getting diff data for tree to workdir ", NULL);
+ 
+ 	lua_diff->diff = local_diff;
+@@ -305,7 +305,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_diff *local_diff;
+-	check_error_long(git_diff_tree_to_workdir_with_index(&local_diff, Repo->repo, lua_tree->tree, &(lua_diff_opts->diff_opts)),
++	check_error_long(L, git_diff_tree_to_workdir_with_index(&local_diff, Repo->repo, lua_tree->tree, &(lua_diff_opts->diff_opts)),
+ 	    "Error in getting diff data for tree to workdir using the index data", NULL);
+ 
+ 	lua_diff->diff = local_diff;
+diff -uNr luagit2/src/luagit2/graph/lua_graph.c luagit2_patched/src/luagit2/graph/lua_graph.c
+--- luagit2/src/luagit2/graph/lua_graph.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/graph/lua_graph.c	2022-01-27 16:42:01.635589850 +0100
+@@ -12,7 +12,7 @@
+ 
+ 	size_t ahead, behind;
+ 
+-	check_error_long(git_graph_ahead_behind(&ahead,&behind,Repository->repo,&(local_oid->oid),&(upstream_oid->oid)),
++	check_error_long(L, git_graph_ahead_behind(&ahead,&behind,Repository->repo,&(local_oid->oid),&(upstream_oid->oid)),
+ 		"Error getting graph details between given commits",NULL);
+ 
+ 	lua_pushnumber(L,ahead);
+diff -uNr luagit2/src/luagit2/ignore/lua_ignore.c luagit2_patched/src/luagit2/ignore/lua_ignore.c
+--- luagit2/src/luagit2/ignore/lua_ignore.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/ignore/lua_ignore.c	2022-01-27 16:42:13.311590173 +0100
+@@ -9,7 +9,7 @@
+ 	const luagit2_repository *Repository = (luagit2_repository *)luaL_checkudata(L, 1, "luagit2_repository");
+ 	const char *rule = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_ignore_add_rule( Repository->repo, rule),
++	check_error_long(L, git_ignore_add_rule( Repository->repo, rule),
+ 		"Error creating ignore rules for given repo", NULL);
+ 	return 0;
+ }
+@@ -22,7 +22,7 @@
+ 
+ 	const luagit2_repository *Repository = (luagit2_repository *)luaL_checkudata(L, 1, "luagit2_repository");
+ 
+-	check_error_long(git_ignore_clear_internal_rules( Repository->repo), 
++	check_error_long(L, git_ignore_clear_internal_rules( Repository->repo), 
+ 		"Error clearing ignore rules for given repo", NULL);
+ 	return 0;
+ }
+@@ -37,7 +37,7 @@
+ 	const char *path = luaL_checkstring(L, 2);
+ 
+ 	int is_ignored;
+-	check_error_long(git_ignore_path_is_ignored(&is_ignored, Repository->repo, path), 
++	check_error_long(L, git_ignore_path_is_ignored(&is_ignored, Repository->repo, path), 
+ 		"Error creating ignore rules for given repo", NULL);
+ 	lua_pushboolean(L,is_ignored);
+ 
+diff -uNr luagit2/src/luagit2/index/lua_index.c luagit2_patched/src/luagit2/index/lua_index.c
+--- luagit2/src/luagit2/index/lua_index.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/index/lua_index.c	2022-01-27 16:42:50.643591206 +0100
+@@ -9,7 +9,7 @@
+ 	luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 	const luagit2_index_entry *Index_entry = (luagit2_index_entry *)luaL_checkudata(L, 2, "luagit2_index_entry");
+ 
+-	check_error_long(git_index_add(Index->index, Index_entry->index_entry),
++	check_error_long(L, git_index_add(Index->index, Index_entry->index_entry),
+ 	    "Unable to add/update index entry", NULL);
+ 
+ 	return 1;
+@@ -25,7 +25,7 @@
+ 	luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 	const char *path = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_index_add_bypath(Index->index, path),
++	check_error_long(L, git_index_add_bypath(Index->index, path),
+ 	    "Unable to add/update from file pointed by given path", NULL);
+ 
+ 	return 1;
+@@ -79,7 +79,7 @@
+ 	const luagit2_index_entry *Index_our_entry = (luagit2_index_entry *)luaL_checkudata(L, 3, "luagit2_index_entry");
+ 	const luagit2_index_entry *Index_their_entry = (luagit2_index_entry *)luaL_checkudata(L, 4, "luagit2_index_entry");
+ 
+-	check_error_long(git_index_conflict_add(Index->index, Index_ancestor_entry->index_entry
++	check_error_long(L, git_index_conflict_add(Index->index, Index_ancestor_entry->index_entry
+ 	        , Index_our_entry->index_entry, Index_their_entry->index_entry),
+ 	    "Error in adding index entries to represent a conflict", NULL);
+ 
+@@ -254,7 +254,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_index *local_index;
+-	check_error_long(git_index_open(&local_index, path),
++	check_error_long(L, git_index_open(&local_index, path),
+ 	    "Unable to create git object of index type from file at given path", NULL);
+ 	lua_index->index = local_index;
+ 	return 1;
+@@ -301,7 +301,7 @@
+ 
+ 	const luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 	int force = luaL_checkinteger(L, 2);
+-	check_error_long(git_index_read(Index->index, force),
++	check_error_long(L, git_index_read(Index->index, force),
+ 	    "Unable to read from hard disk to update index", NULL);
+ 
+ 	return 1;
+@@ -316,7 +316,7 @@
+ 
+ 	const luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 	const luagit2_tree *Tree = (luagit2_tree *)luaL_checkudata(L, 2, "luagit2_tree");
+-	check_error_long(git_index_read_tree(Index->index, Tree->tree),
++	check_error_long(L, git_index_read_tree(Index->index, Tree->tree),
+ 	    "Unable to read a tree into index file", NULL);
+ 
+ 	return 1;
+@@ -333,7 +333,7 @@
+ 	const char *path = luaL_checkstring(L, 2);
+ 	int stage = luaL_checkinteger(L, 3);
+ 
+-	check_error_long(git_index_remove(Index->index, path, stage),
++	check_error_long(L, git_index_remove(Index->index, path, stage),
+ 	    "Unable to remove entry from index", NULL);
+ 
+ 	return 1;
+@@ -348,7 +348,7 @@
+ 	const luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 	const char *path = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_index_remove_bypath(Index->index, path),
++	check_error_long(L, git_index_remove_bypath(Index->index, path),
+ 	    "Unable to remove entry from index that corresponds to file path provided", NULL);
+ 
+ 	return 1;
+@@ -364,7 +364,7 @@
+ 	const char *dir_path = luaL_checkstring(L, 2);
+ 	int stage = luaL_checkinteger(L, 3);
+ 
+-	check_error_long(git_index_remove_directory(Index->index, dir_path, stage),
++	check_error_long(L, git_index_remove_directory(Index->index, dir_path, stage),
+ 	    "Unable to remove all entries at given directory path", NULL);
+ 
+ 	return 1;
+@@ -379,7 +379,7 @@
+ 	const luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 	int caps = luaL_checkinteger(L, 2);
+ 
+-	check_error_long(git_index_set_caps(Index->index, caps),
++	check_error_long(L, git_index_set_caps(Index->index, caps),
+ 	    "Unable to set caps for the given index", NULL);
+ 
+ 	return 1;
+@@ -395,7 +395,7 @@
+ 	const luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 	unsigned int version = luaL_checkinteger(L, 2);
+ 
+-	check_error_long(git_index_set_version(Index->index, version),
++	check_error_long(L, git_index_set_version(Index->index, version),
+ 	    "Unable to set the index version", NULL);
+ 
+ 	return 1;
+@@ -423,7 +423,7 @@
+ 
+ 	const luagit2_index *Index = (luagit2_index *)luaL_checkudata(L, 1, "luagit2_index");
+ 
+-	check_error_long(git_index_write(Index->index),
++	check_error_long(L, git_index_write(Index->index),
+ 	    "Unable to write to given index", NULL);
+ 
+ 	return 1;
+@@ -444,7 +444,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_index_write_tree(&local_id, Index->index),
++	check_error_long(L, git_index_write_tree(&local_id, Index->index),
+ 	    "Unable to write tree to index", NULL);
+ 	obj_id->oid = local_id;
+ 
+@@ -468,7 +468,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_index_write_tree_to(&local_id, Index->index, Repo->repo),
++	check_error_long(L, git_index_write_tree_to(&local_id, Index->index, Repo->repo),
+ 	    "Unable to write the index as a tree to the given repository", NULL);
+ 	obj_id->oid = local_id;
+ 
+diff -uNr luagit2/src/luagit2/libgit2/lua_libgit2.c luagit2_patched/src/luagit2/libgit2/lua_libgit2.c
+--- luagit2/src/luagit2/libgit2/lua_libgit2.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/libgit2/lua_libgit2.c	2022-01-27 16:35:28.735578978 +0100
+@@ -25,7 +25,7 @@
+ 		return luaL_error(L, "expecting no arguments");
+ 	}
+ 
+-	check_error_long(git_libgit2_features(),
++	check_error_long(L, git_libgit2_features(),
+ 	    "Error Accessing libgit2 features", NULL);
+ 	int features_number = git_libgit2_features();
+ 	lua_pushinteger(L, features_number);
+@@ -57,7 +57,7 @@
+ 	}
+ 
+ 	size_t mmap_size ;
+-	check_error_long(git_libgit2_opts(GIT_OPT_GET_MWINDOW_SIZE, &mmap_size),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_GET_MWINDOW_SIZE, &mmap_size),
+ 	    "Error in getting memory map size", NULL);
+ 	lua_pushinteger(L, mmap_size);
+ 	return 1;
+@@ -70,7 +70,7 @@
+ 	}
+ 
+ 	size_t size = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_MWINDOW_SIZE, size),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_MWINDOW_SIZE, size),
+ 	    "Error setting memory map size", NULL);
+ 	return 1;
+ }
+@@ -82,7 +82,7 @@
+ 	}
+ 
+ 	size_t mmap_limit ;
+-	check_error_long(git_libgit2_opts(GIT_OPT_GET_MWINDOW_MAPPED_LIMIT, &mmap_limit),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_GET_MWINDOW_MAPPED_LIMIT, &mmap_limit),
+ 	    "Error getting memory map limit", NULL);
+ 
+ 	lua_pushinteger(L, mmap_limit);
+@@ -96,7 +96,7 @@
+ 	}
+ 
+ 	int size = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_MWINDOW_MAPPED_LIMIT, size),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_MWINDOW_MAPPED_LIMIT, size),
+ 	    "Error setting memory map limit", NULL);
+ 	return 1;
+ }
+@@ -126,7 +126,7 @@
+ 	}
+ 
+ push_val : {
+-		check_error_long(git_libgit2_opts(GIT_OPT_GET_SEARCH_PATH, cfg_lvl, &path),
++		check_error_long(L, git_libgit2_opts(GIT_OPT_GET_SEARCH_PATH, cfg_lvl, &path),
+ 		    "error getting search path", "Unsupported option, must be one of : system, global, xdg, programdata");
+ 
+ 		lua_pushstring(L, path.ptr);
+@@ -161,7 +161,7 @@
+ 	}
+ 
+ set_val : {
+-		check_error_long(git_libgit2_opts(GIT_OPT_SET_SEARCH_PATH, cfg_lvl, path),
++		check_error_long(L, git_libgit2_opts(GIT_OPT_SET_SEARCH_PATH, cfg_lvl, path),
+ 		    "error setting search path", "Unsupported option, must be one of : system, global, xdg, programdata");
+ 		return 1;
+ 	}
+@@ -178,7 +178,7 @@
+ 	}
+ 
+ 	ssize_t current, allowed ;
+-	check_error_long(git_libgit2_opts(GIT_OPT_GET_CACHED_MEMORY, &current, &allowed),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_GET_CACHED_MEMORY, &current, &allowed),
+ 	    "Error getting cached memory size", NULL);
+ 
+ 	lua_pushinteger(L, current);
+@@ -195,7 +195,7 @@
+ 
+ 	luagit2_otype *obj_type = (luagit2_otype *)luaL_checkudata(L, 1, "luagit2_otype");
+ 	size_t size = luaL_checkinteger(L, 2);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_CACHE_OBJECT_LIMIT, obj_type->otype, size),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_CACHE_OBJECT_LIMIT, obj_type->otype, size),
+ 	    "Error setting cache limit", NULL);
+ 	return 1;
+ }
+@@ -207,7 +207,7 @@
+ 	}
+ 
+ 	ssize_t	 size = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_CACHE_MAX_SIZE, size),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_CACHE_MAX_SIZE, size),
+ 	    "Error setting maximum cache size ", NULL);
+ 	return 1;
+ }
+@@ -219,7 +219,7 @@
+ 	}
+ 
+ 	int enabled = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_ENABLE_CACHING, enabled),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_ENABLE_CACHING, enabled),
+ 	    "Error while enable/disable caching", NULL);
+ 	return 1;
+ }
+@@ -232,7 +232,7 @@
+ 
+ 	git_buf path = GIT_BUF_INIT_CONST(NULL, 0);
+ 
+-	check_error_long(git_libgit2_opts(GIT_OPT_GET_TEMPLATE_PATH, &path),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_GET_TEMPLATE_PATH, &path),
+ 	    "Error getting Template path", NULL);
+ 
+ 	lua_pushstring(L, path.ptr);
+@@ -246,7 +246,7 @@
+ 	}
+ 
+ 	const char *path = luaL_checkstring(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_TEMPLATE_PATH, path),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_TEMPLATE_PATH, path),
+ 	    "Error setting Template path", NULL);
+ 	return 1;
+ }
+@@ -258,7 +258,7 @@
+ 	}
+ 
+ 	const char *user_agent = luaL_checkstring(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_USER_AGENT, user_agent),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_USER_AGENT, user_agent),
+ 	    "Error setting user agent", NULL);
+ 	return 1;
+ }
+@@ -270,7 +270,7 @@
+ 	}
+ 
+ 	unsigned long value ;
+-	check_error_long(git_libgit2_opts(GIT_OPT_GET_WINDOWS_SHAREMODE, &value),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_GET_WINDOWS_SHAREMODE, &value),
+ 	    "Error getting windows share mode", NULL);
+ 
+ 	lua_pushnumber(L, value);
+@@ -284,7 +284,7 @@
+ 	}
+ 
+ 	unsigned long value = luaL_checknumber(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_WINDOWS_SHAREMODE, value),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_WINDOWS_SHAREMODE, value),
+ 	    "Error setting windows share mode", NULL);
+ 	return 1;
+ }
+@@ -296,7 +296,7 @@
+ 	}
+ 
+ 	int enabled = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_ENABLE_STRICT_OBJECT_CREATION, enabled),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_ENABLE_STRICT_OBJECT_CREATION, enabled),
+ 	    "Error in enable/disable strict object creation", NULL);
+ 	return 1;
+ }
+@@ -308,7 +308,7 @@
+ 	}
+ 
+ 	int enabled = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_ENABLE_STRICT_SYMBOLIC_REF_CREATION, enabled),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_ENABLE_STRICT_SYMBOLIC_REF_CREATION, enabled),
+ 	    "Error in enable/disable symbolic ref creation", NULL);
+ 	return 1;
+ }
+@@ -320,7 +320,7 @@
+ 	}
+ 
+ 	const char *ciphers = luaL_checkstring(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_SET_SSL_CIPHERS, ciphers),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_SET_SSL_CIPHERS, ciphers),
+ 	    "Error setting SSL ciphers", NULL);
+ 	return 1;
+ }
+@@ -332,7 +332,7 @@
+ 	}
+ 
+ 	int enabled = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_ENABLE_OFS_DELTA, enabled),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_ENABLE_OFS_DELTA, enabled),
+ 	    "Error in enable/disable offset delta", NULL);
+ 	return 1;
+ }
+@@ -344,7 +344,7 @@
+ 	}
+ 
+ 	int enabled = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_ENABLE_FSYNC_GITDIR, enabled),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_ENABLE_FSYNC_GITDIR, enabled),
+ 	    "Error in enable/disable fsync gitdir", NULL);
+ 	return 1;
+ }
+@@ -356,7 +356,7 @@
+ 	}
+ 
+ 	int enabled = luaL_checkinteger(L, 1);
+-	check_error_long(git_libgit2_opts(GIT_OPT_ENABLE_STRICT_HASH_VERIFICATION, enabled),
++	check_error_long(L, git_libgit2_opts(GIT_OPT_ENABLE_STRICT_HASH_VERIFICATION, enabled),
+ 	    "Error in enable/disable strict hash verification", NULL);
+ 	return 1;
+ }
+diff -uNr luagit2/src/luagit2/note/lua_note.c luagit2_patched/src/luagit2/note/lua_note.c
+--- luagit2/src/luagit2/note/lua_note.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/note/lua_note.c	2022-01-27 16:43:09.863591737 +0100
+@@ -60,7 +60,7 @@
+ 	git_oid notes_commit_out;
+ 	git_oid notes_blob_out;
+ 
+-	check_error_long(git_note_commit_create(&notes_commit_out, &notes_blob_out, Repo->repo, lua_commit_parent->commit,
++	check_error_long(L, git_note_commit_create(&notes_commit_out, &notes_blob_out, Repo->repo, lua_commit_parent->commit,
+ 		Author_sign->sign,Commiter_sign->sign,&(obj_id->oid),note_message,force),"Unable to create a commit note", NULL);
+ 
+ 	luagit2_oid *notes_commit_id = (luagit2_oid *)lua_newuserdata(L, sizeof(*notes_commit_id));
+@@ -93,7 +93,7 @@
+ 
+ 	git_oid notes_commit_out;
+ 
+-	check_error_long(git_note_create(&notes_commit_out, Repo->repo, notes_ref,
++	check_error_long(L, git_note_create(&notes_commit_out, Repo->repo, notes_ref,
+ 		Author_sign->sign,Commiter_sign->sign,&(obj_id->oid),note_message,force),"Unable to create a note", NULL);
+ 
+ 	luagit2_oid *notes_commit_id = (luagit2_oid *)lua_newuserdata(L, sizeof(*notes_commit_id));
+@@ -162,7 +162,7 @@
+ 
+ 	git_oid local_notes_remove_commit_out;
+ 
+-	check_error_long(git_note_commit_remove(&local_notes_remove_commit_out, Repo->repo, lua_note_commit->commit,
++	check_error_long(L, git_note_commit_remove(&local_notes_remove_commit_out, Repo->repo, lua_note_commit->commit,
+ 		Author_sign->sign,Commiter_sign->sign,&(obj_id->oid)),"Unable to do remove commit note", NULL);
+ 
+ 	luagit2_oid *notes_remove_commit_out = (luagit2_oid *)lua_newuserdata(L, sizeof(*notes_remove_commit_out));
+@@ -187,7 +187,7 @@
+ 	const luagit2_oid *obj_id = (luagit2_oid *)luaL_checkudata(L, 5, "luagit2_oid");
+ 
+ 
+-	check_error_long(git_note_remove(Repo->repo, notes_ref,Author_sign->sign,
++	check_error_long(L, git_note_remove(Repo->repo, notes_ref,Author_sign->sign,
+ 		Commiter_sign->sign,&(obj_id->oid)),"Unable to remove note", NULL);
+ 
+ 	return 0;
+@@ -205,7 +205,7 @@
+ 
+ 	git_note *local_note;
+ 
+-	check_error_long(git_note_read(&local_note, Repo->repo, notes_ref,
++	check_error_long(L, git_note_read(&local_note, Repo->repo, notes_ref,
+ 		&(obj_id->oid)),"Unable to read a note", NULL);
+ 
+ 	luagit2_note *lua_note = (luagit2_note *)lua_newuserdata(L, sizeof(*lua_note));
+@@ -228,7 +228,7 @@
+ 
+ 	git_note *local_note;
+ 
+-	check_error_long(git_note_commit_read(&local_note, Repo->repo, lua_commit->commit,
++	check_error_long(L, git_note_commit_read(&local_note, Repo->repo, lua_commit->commit,
+ 		&(obj_id->oid)),"Unable to read a commit note", NULL);
+ 
+ 	luagit2_note *lua_note = (luagit2_note *)lua_newuserdata(L, sizeof(*lua_note));
+diff -uNr luagit2/src/luagit2/object/lua_object.c luagit2_patched/src/luagit2/object/lua_object.c
+--- luagit2/src/luagit2/object/lua_object.c	2022-01-27 16:26:23.195563883 +0100
++++ luagit2_patched/src/luagit2/object/lua_object.c	2022-01-27 16:43:23.443592113 +0100
+@@ -63,7 +63,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_object *local_obj;
+-	check_error_long(git_object_lookup(&local_obj, Repository->repo, &(object_id->oid), Type->otype)
++	check_error_long(L, git_object_lookup(&local_obj, Repository->repo, &(object_id->oid), Type->otype)
+ 	    , "Error looking up the object in given repo", NULL);
+ 	lua_object->object = local_obj;
+ 
+@@ -88,7 +88,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_object *local_obj;
+-	check_error_long(git_object_lookup_bypath(&local_obj, treeish->object, path, Type->otype)
++	check_error_long(L, git_object_lookup_bypath(&local_obj, treeish->object, path, Type->otype)
+ 	    , "Error looking up the object in given repo by its path", NULL);
+ 	lua_object->object = local_obj;
+ 
+@@ -114,7 +114,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_object *local_obj;
+-	check_error_long(git_object_lookup_prefix(&local_obj, Repository->repo, &(object_id->oid), length,
++	check_error_long(L, git_object_lookup_prefix(&local_obj, Repository->repo, &(object_id->oid), length,
+ 	        Type->otype), "Error looking up the object in given repo for given length prefix", NULL);
+ 	lua_object->object = local_obj;
+ 
+@@ -156,7 +156,7 @@
+ 	luaL_newmetatable(L, "luagit2_buf");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_object_short_id(&(lua_out_buf->buf), lua_object->object),
++	check_error_long(L, git_object_short_id(&(lua_out_buf->buf), lua_object->object),
+ 	    "Unable to get abbreviated OID", NULL);
+ 
+ 	return 1;
+diff -uNr luagit2/src/luagit2/odb/lua_odb.c luagit2_patched/src/luagit2/odb/lua_odb.c
+--- luagit2/src/luagit2/odb/lua_odb.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/odb/lua_odb.c	2022-01-27 16:43:49.231592827 +0100
+@@ -42,7 +42,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_odb_hash(&local_id, (void *)string_value, strlen(string_value), lua_otype->otype),
++	check_error_long(L, git_odb_hash(&local_id, (void *)string_value, strlen(string_value), lua_otype->otype),
+ 	    "Error generating hash for given string", NULL);
+ 
+ 	obj_id->oid = local_id;
+@@ -64,7 +64,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_odb_hashfile(&local_id, path, lua_otype->otype),
++	check_error_long(L, git_odb_hashfile(&local_id, path, lua_otype->otype),
+ 	    "Error generating hash for given file", NULL);
+ 
+ 	obj_id->oid = local_id;
+@@ -148,7 +148,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_odb *local_odb;
+-	check_error_long(git_odb_open(&local_odb, path),
++	check_error_long(L, git_odb_open(&local_odb, path),
+ 	    "Error opening odb from given path", NULL);
+ 
+ 	lua_odb->odb = local_odb;
+@@ -172,7 +172,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_odb_object *local_odb_object;
+-	check_error_long(git_odb_read(&local_odb_object, lua_odb->odb, &(obj_id->oid)),
++	check_error_long(L, git_odb_read(&local_odb_object, lua_odb->odb, &(obj_id->oid)),
+ 	    "Error looking up the object id in the repo", NULL);
+ 
+ 	lua_odb_obj->odb_object = local_odb_object;
+@@ -187,7 +187,7 @@
+ 	}
+ 
+ 	const luagit2_odb *lua_odb = (luagit2_odb *)luaL_checkudata(L, 1, "luagit2_odb");
+-	check_error_long(git_odb_refresh(lua_odb->odb), "Error refreshing odb", NULL);
++	check_error_long(L, git_odb_refresh(lua_odb->odb), "Error refreshing odb", NULL);
+ 
+ 	return 1;
+ }
+@@ -207,7 +207,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_odb_write(&local_id, lua_odb->odb, (void *)buffer, strlen(buffer), lua_otype->otype),
++	check_error_long(L, git_odb_write(&local_id, lua_odb->odb, (void *)buffer, strlen(buffer), lua_otype->otype),
+ 	    "Error generating hash for given file", NULL);
+ 
+ 	obj_id->oid = local_id;
+diff -uNr luagit2/src/luagit2/oid/lua_oid.c luagit2_patched/src/luagit2/oid/lua_oid.c
+--- luagit2/src/luagit2/oid/lua_oid.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/oid/lua_oid.c	2022-01-27 16:44:00.171593129 +0100
+@@ -15,7 +15,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_oid_fromstr(&local_id, string_value),
++	check_error_long(L, git_oid_fromstr(&local_id, string_value),
+ 	    "Error generating oid object from given string", NULL);
+ 	obj_id->oid = local_id;
+ 
+@@ -38,7 +38,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_oid_fromstrn(&local_id, string_value, length),
++	check_error_long(L, git_oid_fromstrn(&local_id, string_value, length),
+ 	    "Error generating oid object from given length of string", NULL);
+ 	obj_id->oid = local_id;
+ 
+diff -uNr luagit2/src/luagit2/reference/lua_reference.c luagit2_patched/src/luagit2/reference/lua_reference.c
+--- luagit2/src/luagit2/reference/lua_reference.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/reference/lua_reference.c	2022-01-27 16:44:41.691594278 +0100
+@@ -22,7 +22,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_create(&local_ref, lua_repo->repo, name,
++	check_error_long(L, git_reference_create(&local_ref, lua_repo->repo, name,
+ 	        &(lua_oid->oid), force, log_message), "Error creating reference with details provided", NULL);
+ 	lua_ref->reference  = local_ref;
+ 	return 1;
+@@ -51,7 +51,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_create_matching(&local_ref, lua_repo->repo, name, &(lua_oid->oid),
++	check_error_long(L, git_reference_create_matching(&local_ref, lua_repo->repo, name, &(lua_oid->oid),
+ 	        force, &(current_oid->oid), log_message), "Error creating matching reference", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -75,7 +75,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_dup(&local_ref, lua_ref_source->reference),
++	check_error_long(L, git_reference_dup(&local_ref, lua_ref_source->reference),
+ 	    "Error creating duplicate reference", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -100,7 +100,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_dwim(&local_ref, lua_repo->repo, shorthand),
++	check_error_long(L, git_reference_dwim(&local_ref, lua_repo->repo, shorthand),
+ 	    "Unable to Lookup a reference by DWIMing its short name", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -218,7 +218,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference_iterator *local_ref_iterator;
+-	check_error_long(git_reference_iterator_glob_new(&local_ref_iterator, lua_repo->repo, glob),
++	check_error_long(L, git_reference_iterator_glob_new(&local_ref_iterator, lua_repo->repo, glob),
+ 	    "Error creating a global reference iterator ", NULL);
+ 	lua_ref_iterator->iterator  = local_ref_iterator;
+ 
+@@ -242,7 +242,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference_iterator *local_ref_iterator;
+-	check_error_long(git_reference_iterator_new(&local_ref_iterator, lua_repo->repo),
++	check_error_long(L, git_reference_iterator_new(&local_ref_iterator, lua_repo->repo),
+ 	    "Error creating new reference iterator", NULL);
+ 	lua_ref_iterator->iterator  = local_ref_iterator;
+ 
+@@ -264,7 +264,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_strarray local_strarray;
+-	check_error_long(git_reference_list(&local_strarray, lua_repo->repo),
++	check_error_long(L, git_reference_list(&local_strarray, lua_repo->repo),
+ 	    "Error getting a reference list", NULL);
+ 	lua_array->array  = local_strarray;
+ 	return 1;
+@@ -288,7 +288,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_lookup(&local_ref, lua_repo->repo, name),
++	check_error_long(L, git_reference_lookup(&local_ref, lua_repo->repo, name),
+ 	    "Error looking up the reference in the given repo", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -324,7 +324,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_reference_name_to_id(&local_id, lua_repo->repo, name),
++	check_error_long(L, git_reference_name_to_id(&local_id, lua_repo->repo, name),
+ 	    "Unable to convert the reference to equivalent oid", NULL);
+ 	obj_id->oid = local_id;
+ 
+@@ -348,7 +348,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_next(&local_ref, lua_ref_iterator->iterator),
++	check_error_long(L, git_reference_next(&local_ref, lua_ref_iterator->iterator),
+ 	    "Error in finding next reference object", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -405,7 +405,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_object *local_git_obj;
+-	check_error_long(git_reference_peel(&local_git_obj, lua_ref->reference, type->otype),
++	check_error_long(L, git_reference_peel(&local_git_obj, lua_ref->reference, type->otype),
+ 	    "Unable to do a reference peel", NULL);
+ 	lua_git_obj->object = local_git_obj;
+ 
+@@ -421,7 +421,7 @@
+ 	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
+ 	const char *name = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_reference_remove(lua_repo->repo, name),
++	check_error_long(L, git_reference_remove(lua_repo->repo, name),
+ 	    "Unable to remove the named reference from the repository", NULL);
+ 	return 1;
+ }
+@@ -446,7 +446,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_rename(&local_ref, lua_ref_old->reference, new_name, force, log_message),
++	check_error_long(L, git_reference_rename(&local_ref, lua_ref_old->reference, new_name, force, log_message),
+ 	    "Unable to rename the reference", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -470,7 +470,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_resolve(&local_ref, lua_ref_old->reference),
++	check_error_long(L, git_reference_resolve(&local_ref, lua_ref_old->reference),
+ 	    "Unable to resolve old reference to a new one", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -496,7 +496,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_set_target(&local_ref, lua_ref_old->reference, &(lua_oid->oid), log_message),
++	check_error_long(L, git_reference_set_target(&local_ref, lua_ref_old->reference, &(lua_oid->oid), log_message),
+ 	    "Unable to set target reference", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -525,7 +525,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_symbolic_create(&local_ref, lua_repo->repo, name, target, force, log_message),
++	check_error_long(L, git_reference_symbolic_create(&local_ref, lua_repo->repo, name, target, force, log_message),
+ 	    "Unable to create symbolic reference", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -555,7 +555,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_symbolic_create_matching(&local_ref, lua_repo->repo, name, target,
++	check_error_long(L, git_reference_symbolic_create_matching(&local_ref, lua_repo->repo, name, target,
+ 	        force, current_value, log_message), "Unable to create matching symbolic reference", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -581,7 +581,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_reference_symbolic_set_target(&local_ref, lua_ref_old->reference, target, log_message),
++	check_error_long(L, git_reference_symbolic_set_target(&local_ref, lua_ref_old->reference, target, log_message),
+ 	    "Unable to set a symbolic target", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+diff -uNr luagit2/src/luagit2/reflog/lua_reflog.c luagit2_patched/src/luagit2/reflog/lua_reflog.c
+--- luagit2/src/luagit2/reflog/lua_reflog.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/reflog/lua_reflog.c	2022-01-27 16:44:55.695594666 +0100
+@@ -16,7 +16,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reflog *local_reflog;
+-	check_error_long(git_reflog_read(&local_reflog, Repository->repo, name),
++	check_error_long(L, git_reflog_read(&local_reflog, Repository->repo, name),
+ 	    "Error getting reflog for given reference ", NULL);
+ 
+ 	lua_reflog->reflog = local_reflog;
+@@ -147,7 +147,7 @@
+ 	const luagit2_repository *Repository = (luagit2_repository *)luaL_checkudata(L, 1, "luagit2_repository");
+ 	const char *name = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_reflog_delete(Repository->repo, name),
++	check_error_long(L, git_reflog_delete(Repository->repo, name),
+ 	    "Error deleting reflog ", NULL);
+ 
+ 	return 1;
+@@ -163,7 +163,7 @@
+ 	const size_t index = luaL_checknumber(L, 2);
+ 	const int rewrite = luaL_checkinteger(L, 3);
+ 
+-	check_error_long(git_reflog_drop(lua_reflog->reflog, index, rewrite),
++	check_error_long(L, git_reflog_drop(lua_reflog->reflog, index, rewrite),
+ 	    "Error dropping reflog entry at given index position", NULL);
+ 
+ 	return 1;
+@@ -180,7 +180,7 @@
+ 	const luagit2_signature *lua_sign = (luagit2_signature *)luaL_checkudata(L, 3, "luagit2_signature");
+ 	const char *message = luaL_checkstring(L, 4);
+ 
+-	check_error_long(git_reflog_append(lua_reflog->reflog, &(lua_oid->oid), lua_sign->sign, message),
++	check_error_long(L, git_reflog_append(lua_reflog->reflog, &(lua_oid->oid), lua_sign->sign, message),
+ 	    "Error ammending new reflog entry", NULL);
+ 
+ 	return 1;
+diff -uNr luagit2/src/luagit2/repository/lua_repository.c luagit2_patched/src/luagit2/repository/lua_repository.c
+--- luagit2/src/luagit2/repository/lua_repository.c	2022-01-27 16:26:23.195563883 +0100
++++ luagit2_patched/src/luagit2/repository/lua_repository.c	2022-01-27 16:45:52.371596234 +0100
+@@ -29,7 +29,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_repository_config(&local_config, lua_repo->repo),
++	check_error_long(L, git_repository_config(&local_config, lua_repo->repo),
+ 	    "Error getting config file for given repo", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -53,7 +53,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_config *local_config;
+-	check_error_long(git_repository_config_snapshot(&local_config, lua_repo->repo),
++	check_error_long(L, git_repository_config_snapshot(&local_config, lua_repo->repo),
+ 	    "Error getting config snapshot for the file", NULL);
+ 	lua_cfg->cfg  = local_config;
+ 
+@@ -137,7 +137,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_reference *local_ref;
+-	check_error_long(git_repository_head_for_worktree(&local_ref, lua_repo->repo, name),
++	check_error_long(L, git_repository_head_for_worktree(&local_ref, lua_repo->repo, name),
+ 	    "Error retrieving Head for worktree", NULL);
+ 	lua_ref->reference  = local_ref;
+ 
+@@ -188,7 +188,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_index *local_index  = NULL;
+-	check_error_long(git_repository_index(&local_index, lua_repo->repo),
++	check_error_long(L, git_repository_index(&local_index, lua_repo->repo),
+ 	    "Error getting INdex for given repo", NULL);
+ 
+ 	lua_index->index  = local_index;
+@@ -219,7 +219,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_repository *local_repository  = NULL;
+-	check_error_long(git_repository_init(&local_repository, path, is_bare),
++	check_error_long(L, git_repository_init(&local_repository, path, is_bare),
+ 	    "Error initializing repository", NULL);
+ 
+ 	lua_repo->repo = local_repository ;
+@@ -291,7 +291,7 @@
+ 
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_repository_message(&(lua_buf->buf), lua_repo->repo),
++	check_error_long(L, git_repository_message(&(lua_buf->buf), lua_repo->repo),
+ 	    "Error getting repository message", NULL);
+ 
+ 	return 1;
+@@ -326,7 +326,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_odb *local_odb;
+-	check_error_long(git_repository_odb(&local_odb, lua_repo->repo),
++	check_error_long(L, git_repository_odb(&local_odb, lua_repo->repo),
+ 	    "Error Getting Object databse for the given repo", NULL);
+ 	lua_odb->odb  = local_odb;
+ 
+@@ -354,7 +354,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_repository *Repository  = NULL;
+-	check_error_long(git_repository_open(&Repository, path),
++	check_error_long(L, git_repository_open(&Repository, path),
+ 	    "Error opening the given repo from given path", NULL);
+ 
+ 	lua_repo->repo = Repository ;
+@@ -383,7 +383,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_repository *Repository  = NULL;
+-	check_error_long(git_repository_open_bare(&Repository, bare_path),
++	check_error_long(L, git_repository_open_bare(&Repository, bare_path),
+ 	    "Error Opening bare repository", NULL);
+ 
+ 	lua_repo->repo = Repository ;
+@@ -407,7 +407,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_repository *Repository  = NULL;
+-	check_error_long(git_repository_open_from_worktree(&Repository, lua_worktree->worktree),
++	check_error_long(L, git_repository_open_from_worktree(&Repository, lua_worktree->worktree),
+ 	    "Error Opening repository from worktree", NULL);
+ 
+ 	lua_repo->repo = Repository ;
+@@ -444,7 +444,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_refdb *local_refdb;
+-	check_error_long(git_repository_refdb(&local_refdb, lua_repo->repo),
++	check_error_long(L, git_repository_refdb(&local_refdb, lua_repo->repo),
+ 	    "Unable to get refdb for repository", NULL);
+ 	lua_refdb->refdb  = local_refdb;
+ 
+@@ -471,7 +471,7 @@
+ 
+ 	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
+ 	const luagit2_oid *lua_oid = (luagit2_oid *)luaL_checkudata(L, 2,"luagit2_oid");
+-	check_error_long(git_repository_set_head_detached(lua_repo->repo, &(lua_oid->oid)),
++	check_error_long(L, git_repository_set_head_detached(lua_repo->repo, &(lua_oid->oid)),
+ 	    "Unable to set HEAD", NULL);
+ 	return 1;
+ }
+@@ -485,7 +485,7 @@
+ 	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
+ 	const char *name = luaL_checkstring(L, 2);
+ 	const char *email = luaL_checkstring(L, 3);
+-	check_error_long(git_repository_set_ident(lua_repo->repo, name, email),
++	check_error_long(L, git_repository_set_ident(lua_repo->repo, name, email),
+ 	    "Unable to set Identity variables ", NULL);
+ 	return 1;
+ }
+@@ -498,7 +498,7 @@
+ 
+ 	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
+ 	const char *name_space = luaL_checkstring(L, 2);
+-	check_error_long(git_repository_set_namespace(lua_repo->repo, name_space),
++	check_error_long(L, git_repository_set_namespace(lua_repo->repo, name_space),
+ 	    "Unable to set name space", NULL);
+ 	return 1;
+ }
+@@ -512,7 +512,7 @@
+ 	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
+ 	const char *work_dir = luaL_checkstring(L, 2);
+ 	int update_gitlink = luaL_checkinteger(L, 3);
+-	check_error_long(git_repository_set_workdir(lua_repo->repo, work_dir, update_gitlink),
++	check_error_long(L, git_repository_set_workdir(lua_repo->repo, work_dir, update_gitlink),
+ 	    "Unable to set the workdir path", NULL);
+ 	return 1;
+ }
+@@ -571,7 +571,7 @@
+     }
+ 
+ 	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
+-	check_error_long( git_repository_submodule_cache_all(lua_repo->repo),
++	check_error_long(L, git_repository_submodule_cache_all(lua_repo->repo),
+ 	    "Error in doing repository cache all", NULL);
+ 	return 1;
+ }
+@@ -583,7 +583,7 @@
+     }
+ 
+ 	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
+-	check_error_long( git_repository_submodule_cache_clear(lua_repo->repo),
++	check_error_long(L, git_repository_submodule_cache_clear(lua_repo->repo),
+ 	    "Error in clearing sublodule cache clear", NULL);
+ 	return 1;
+ }
+@@ -606,7 +606,8 @@
+         return luaL_error(L, "expecting 1 argument(s) : luagit2_repository");
+     }
+ 
+-	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");	check_error_long( git_repository_set_bare(lua_repo->repo),
++	const luagit2_repository *lua_repo = (luagit2_repository *)luaL_checkudata(L, 1,"luagit2_repository");
++	check_error_long(L, git_repository_set_bare(lua_repo->repo),
+ 	    "Error in setting repository bare", NULL);
+ 	return 1;
+ }
+diff -uNr luagit2/src/luagit2/reset/lua_reset.c luagit2_patched/src/luagit2/reset/lua_reset.c
+--- luagit2/src/luagit2/reset/lua_reset.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/reset/lua_reset.c	2022-01-27 16:46:07.047596640 +0100
+@@ -25,7 +25,7 @@
+ 
+ set_val: {
+ 
+-		check_error_long(git_reset(Repository->repo, lua_obj->object, reset_t, &local_checkout_opts),
++		check_error_long(L, git_reset(Repository->repo, lua_obj->object, reset_t, &local_checkout_opts),
+ 		    "Error doing a git reset ", NULL);
+ 
+ 		return 0;
+diff -uNr luagit2/src/luagit2/revert/lua_revert.c luagit2_patched/src/luagit2/revert/lua_revert.c
+--- luagit2/src/luagit2/revert/lua_revert.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/revert/lua_revert.c	2022-01-27 16:46:16.831596911 +0100
+@@ -9,7 +9,7 @@
+ 	const luagit2_repository *Repository = (luagit2_repository *)luaL_checkudata(L, 1, "luagit2_repository");
+ 	const luagit2_commit *lua_commit = (luagit2_commit *)luaL_checkudata(L, 2, "luagit2_commit");
+ 
+-	check_error_long(git_revert(Repository->repo, lua_commit->commit, NULL), // passing null to do with default values
++	check_error_long(L, git_revert(Repository->repo, lua_commit->commit, NULL), // passing null to do with default values
+ 	    "Error doing a git revert for given commit ", NULL);
+ 
+ 	return 0;
+diff -uNr luagit2/src/luagit2/revparse/lua_revparse.c luagit2_patched/src/luagit2/revparse/lua_revparse.c
+--- luagit2/src/luagit2/revparse/lua_revparse.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/revparse/lua_revparse.c	2022-01-27 16:46:29.411597259 +0100
+@@ -16,7 +16,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_revspec local_revspec = {0};
+-	check_error_long(git_revparse(&local_revspec, Repository->repo, spec),
++	check_error_long(L, git_revparse(&local_revspec, Repository->repo, spec),
+ 	    "Error parsing revision for given spec", NULL);
+ 
+ 	lua_revspec->revspec  = &local_revspec;
+@@ -41,7 +41,7 @@
+ 
+ 	git_object *local_obj;
+ 
+-	check_error_long(git_revparse_single(&local_obj, Repository->repo, spec),
++	check_error_long(L, git_revparse_single(&local_obj, Repository->repo, spec),
+ 	    "Error parsing revision for given single spec ", NULL);
+ 	lua_object->object = local_obj;
+ 
+diff -uNr luagit2/src/luagit2/revwalk/lua_revwalk.c luagit2_patched/src/luagit2/revwalk/lua_revwalk.c
+--- luagit2/src/luagit2/revwalk/lua_revwalk.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/revwalk/lua_revwalk.c	2022-01-27 16:46:55.495597981 +0100
+@@ -15,7 +15,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_revwalk *local_revwalk ;
+-	check_error_long(git_revwalk_new(&local_revwalk, Repository->repo),
++	check_error_long(L, git_revwalk_new(&local_revwalk, Repository->repo),
+ 	    "Error getting a revwalk object for given repo", NULL);
+ 
+ 	lua_revwalk->revwalk  = local_revwalk;
+@@ -37,7 +37,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_oid local_id;
+-	check_error_long(git_revwalk_next(&local_id, lua_revwalk->revwalk),
++	check_error_long(L, git_revwalk_next(&local_id, lua_revwalk->revwalk),
+ 	    "Error getting next commit from revision walk", NULL);
+ 	obj_id->oid = local_id;
+ 
+@@ -53,7 +53,7 @@
+ 	luagit2_revwalk *lua_revwalk = (luagit2_revwalk *)luaL_checkudata(L, 1, "luagit2_revwalk");
+ 	const luagit2_oid *lua_oid = (luagit2_oid *)luaL_checkudata(L, 2, "luagit2_oid");
+ 
+-	check_error_long(git_revwalk_push(lua_revwalk->revwalk, &(lua_oid->oid)),
++	check_error_long(L, git_revwalk_push(lua_revwalk->revwalk, &(lua_oid->oid)),
+ 	    "Error pushing a commit to revision walker", NULL);
+ 
+ 	return 1;
+@@ -68,7 +68,7 @@
+ 	luagit2_revwalk *lua_revwalk = (luagit2_revwalk *)luaL_checkudata(L, 1, "luagit2_revwalk");
+ 	const char *ref_name = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_revwalk_push_ref(lua_revwalk->revwalk, ref_name),
++	check_error_long(L, git_revwalk_push_ref(lua_revwalk->revwalk, ref_name),
+ 	    "Error pushing reference to revision walker", NULL);
+ 
+ 	return 1;
+diff -uNr luagit2/src/luagit2/signature/lua_signature.c luagit2_patched/src/luagit2/signature/lua_signature.c
+--- luagit2/src/luagit2/signature/lua_signature.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/signature/lua_signature.c	2022-01-27 16:47:09.179598359 +0100
+@@ -17,7 +17,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_signature *local_sign_obj;
+-	check_error_long(git_signature_default(&local_sign_obj, Repo->repo),
++	check_error_long(L, git_signature_default(&local_sign_obj, Repo->repo),
+ 	    "Error getting default signature details for the given repository", NULL);
+ 
+ 	lua_sign->sign  = local_sign_obj;
+@@ -41,7 +41,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_signature *local_sign_obj;
+-	check_error_long(git_signature_dup(&local_sign_obj, source_sign->sign),
++	check_error_long(L, git_signature_dup(&local_sign_obj, source_sign->sign),
+ 	    "Error generating duplicate signature", NULL);
+ 
+ 	lua_sign->sign  = local_sign_obj;
+@@ -66,7 +66,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_signature *local_sign_obj;
+-	check_error_long(git_signature_from_buffer(&local_sign_obj, buf_string),
++	check_error_long(L, git_signature_from_buffer(&local_sign_obj, buf_string),
+ 	    "Error generating signature from buffer string", NULL);
+ 
+ 	lua_sign->sign  = local_sign_obj;
+@@ -92,7 +92,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_signature *local_sign_obj;
+-	check_error_long(git_signature_now(&local_sign_obj, name, email),
++	check_error_long(L, git_signature_now(&local_sign_obj, name, email),
+ 	    "Error generating signature from given user and email details", NULL);
+ 
+ 	lua_sign->sign  = local_sign_obj;
+diff -uNr luagit2/src/luagit2/status/lua_status.c luagit2_patched/src/luagit2/status/lua_status.c
+--- luagit2/src/luagit2/status/lua_status.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/status/lua_status.c	2022-01-27 16:47:29.687598927 +0100
+@@ -17,7 +17,7 @@
+ 	git_status_options status_opt = GIT_STATUS_OPTIONS_INIT ;
+ 
+ 	git_status_list *local_status_list ;
+-	check_error_long(git_status_list_new(&local_status_list, Repository->repo, &status_opt),
++	check_error_long(L, git_status_list_new(&local_status_list, Repository->repo, &status_opt),
+ 	    "Error getting status list for given repo", NULL);
+ 
+ 	lua_status_list->status_list  = local_status_list;
+diff -uNr luagit2/src/luagit2/tag/lua_tag.c luagit2_patched/src/luagit2/tag/lua_tag.c
+--- luagit2/src/luagit2/tag/lua_tag.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/tag/lua_tag.c	2022-01-27 16:47:55.935599653 +0100
+@@ -18,7 +18,7 @@
+ 	luaL_newmetatable(L, "luagit2_oid");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_tag_annotation_create(&(obj_id->oid), Repository->repo, tag_name, target_obj->object,
++	check_error_long(L, git_tag_annotation_create(&(obj_id->oid), Repository->repo, tag_name, target_obj->object,
+ 	        tagger->sign, tag_message), "Error creating tag for given object", NULL);
+ 
+ 	return 1;
+@@ -43,7 +43,7 @@
+ 	luaL_newmetatable(L, "luagit2_oid");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_tag_create(&(obj_id->oid), Repository->repo, tag_name, target_obj->object,
++	check_error_long(L, git_tag_create(&(obj_id->oid), Repository->repo, tag_name, target_obj->object,
+ 	        tagger->sign, tag_message, force), "Error creating tag for given object", NULL);
+ 
+ 	return 1;
+@@ -64,7 +64,7 @@
+ 	luaL_newmetatable(L, "luagit2_oid");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_tag_create_frombuffer(&(obj_id->oid), Repository->repo
++	check_error_long(L, git_tag_create_frombuffer(&(obj_id->oid), Repository->repo
+ 	        , buffer, force), "Error creating tag using given buffer", NULL);
+ 
+ 	return 1;
+@@ -86,7 +86,7 @@
+ 	luaL_newmetatable(L, "luagit2_oid");
+ 	lua_setmetatable(L, -2);
+ 
+-	check_error_long(git_tag_create_lightweight(&(obj_id->oid), Repository->repo, tag_name,
++	check_error_long(L, git_tag_create_lightweight(&(obj_id->oid), Repository->repo, tag_name,
+ 	        target_obj->object, force), "Error creating lightweight tag for given object", NULL);
+ 
+ 	return 1;
+@@ -101,7 +101,7 @@
+ 	const luagit2_repository *Repository = (luagit2_repository *)luaL_checkudata(L, 1, "luagit2_repository");
+ 	const char *tag_name = luaL_checkstring(L, 2);
+ 
+-	check_error_long(git_tag_delete( Repository->repo, tag_name),
++	check_error_long(L, git_tag_delete( Repository->repo, tag_name),
+ 	    "Error deleting tag from given tag name", NULL);
+ 
+ 	return 1;
+@@ -150,7 +150,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_strarray local_strarray;
+-	check_error_long(git_tag_list(&local_strarray, lua_repo->repo),
++	check_error_long(L, git_tag_list(&local_strarray, lua_repo->repo),
+ 	    "Error getting a tag list", NULL);
+ 	lua_array->array  = local_strarray;
+ 	return 1;
+@@ -170,7 +170,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_strarray local_strarray;
+-	check_error_long(git_tag_list_match(&local_strarray, pattern, lua_repo->repo),
++	check_error_long(L, git_tag_list_match(&local_strarray, pattern, lua_repo->repo),
+ 	    "Error getting a tag list matching given pattern", NULL);
+ 	lua_array->array  = local_strarray;
+ 	return 1;
+@@ -193,7 +193,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_tag *local_tag;
+-	check_error_long(git_tag_lookup(&local_tag, lua_repo->repo, &(lua_oid->oid)),
++	check_error_long(L, git_tag_lookup(&local_tag, lua_repo->repo, &(lua_oid->oid)),
+ 	    "Error looking up the tag in the given repo", NULL);
+ 	lua_tag->tag  = local_tag;
+ 	return 1;
+@@ -217,7 +217,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_tag *local_tag;
+-	check_error_long(git_tag_lookup_prefix(&local_tag, lua_repo->repo, &(lua_oid->oid), length),
++	check_error_long(L, git_tag_lookup_prefix(&local_tag, lua_repo->repo, &(lua_oid->oid), length),
+ 	    "Error looking up the tag in the given repo using prefix", NULL);
+ 	lua_tag->tag  = local_tag;
+ 
+@@ -305,7 +305,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_object *local_git_obj;
+-	check_error_long(git_tag_target(&local_git_obj, lua_tag->tag),
++	check_error_long(L, git_tag_target(&local_git_obj, lua_tag->tag),
+ 	    "Unable to find target object for the given tag", NULL);
+ 	lua_git_obj->object = local_git_obj;
+ 
+diff -uNr luagit2/src/luagit2/tree/lua_tree.c luagit2_patched/src/luagit2/tree/lua_tree.c
+--- luagit2/src/luagit2/tree/lua_tree.c	2019-06-25 16:05:14.000000000 +0200
++++ luagit2_patched/src/luagit2/tree/lua_tree.c	2022-01-27 16:48:11.171600074 +0100
+@@ -84,7 +84,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_tree_entry *local_tree_entry;
+-	check_error_long(git_tree_entry_bypath(&local_tree_entry, Tree->tree, path),
++	check_error_long(L, git_tree_entry_bypath(&local_tree_entry, Tree->tree, path),
+ 	    "Error in getting tree entry by given file path", NULL);
+ 	lua_tree_entry->tree_entry = local_tree_entry;
+ 
+@@ -193,7 +193,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_object *local_obj;
+-	check_error_long(git_tree_entry_to_object(&local_obj, Repo->repo, Tree_entry->tree_entry),
++	check_error_long(L, git_tree_entry_to_object(&local_obj, Repo->repo, Tree_entry->tree_entry),
+ 	    "Error getting the object pointed by given tree entry", NULL);
+ 
+ 	lua_obj->object  = local_obj;
+@@ -270,7 +270,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_tree *local_tree_obj;
+-	check_error_long(git_tree_lookup(&local_tree_obj, Repo->repo, &(Tree_id->oid)),
++	check_error_long(L, git_tree_lookup(&local_tree_obj, Repo->repo, &(Tree_id->oid)),
+ 	    "Error looking up the tree id in the given repository", NULL);
+ 
+ 	lua_tree->tree  = local_tree_obj;
+@@ -297,7 +297,7 @@
+ 	lua_setmetatable(L, -2);
+ 
+ 	git_tree *local_tree_obj;
+-	check_error_long(git_tree_lookup_prefix(&local_tree_obj, Repo->repo, &(Tree_id->oid), length),
++	check_error_long(L, git_tree_lookup_prefix(&local_tree_obj, Repo->repo, &(Tree_id->oid), length),
+ 	    "Error looking up the tree id in the given repository using its prefix", NULL);
+ 
+ 	lua_tree->tree  = local_tree_obj;
