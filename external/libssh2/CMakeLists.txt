@@ -7,7 +7,7 @@ INCLUDE(ExternalProject)
 # Python is used for some test scripts.
 FIND_PACKAGE(PythonInterp 2.7 REQUIRED)
 
-SET(VERSION_EXTERNAL "1.9.0")
+SET(VERSION_EXTERNAL "1.10.0")
 
 
 #----------------------------------------------------------------------------
@@ -31,8 +31,9 @@ LIST(APPEND PRJ_CMAKE_ARGS "-DLIBGCRYPT_LIBRARY=${LIBGCRYPT_LIBRARY}")
 LIST(APPEND PRJ_CMAKE_ARGS "-DLIBGCRYPT_INCLUDE_DIR=${LIBGCRYPT_INCLUDE_DIR}")
 
 # Add ZLIB.
+# NOTE: Use the build requirements from the LUA5.1 build.
 LIST(APPEND PRJ_CMAKE_ARGS "-DENABLE_ZLIB_COMPRESSION=ON")
-LIST(APPEND PRJ_CMAKE_ARGS "-Dnet.zlib-zlib_DIR=${net.zlib-zlib_DIR}")
+LIST(APPEND PRJ_CMAKE_ARGS "-Dnet.zlib-zlib_DIR=${CMAKE_BINARY_DIR}/../lua5.1/build_requirements/jonchki/install/dev/cmake")
 
 LIST(APPEND PRJ_CMAKE_ARGS "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
 LIST(APPEND PRJ_CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=''")
@@ -40,8 +41,8 @@ LIST(APPEND PRJ_CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=''")
 ExternalProject_Add(TARGET_libssh2
                     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/libssh2-${VERSION_EXTERNAL}
                     URL ${CMAKE_CURRENT_SOURCE_DIR}/libssh2-${VERSION_EXTERNAL}.tar.gz
-                    URL_HASH SHA1=21e98282b103307a16792e5e2d4c99beaf0b3b9c
-                    PATCH_COMMAND "${PYTHON_EXECUTABLE}" ${CMAKE_HOME_DIRECTORY}/../cmake/tools/apply_patches.py --working-folder ${CMAKE_CURRENT_BINARY_DIR}/libssh2-${VERSION_EXTERNAL}/src/TARGET_libssh2 --patch-folder ${CMAKE_CURRENT_SOURCE_DIR}/patches --strip 1
+                    URL_HASH SHA1=2ebb3bc5c944090ade840f3a0ada9874eced979b
+                    PATCH_COMMAND "${PYTHON_EXECUTABLE}" ${CMAKE_HOME_DIRECTORY}/cmake/tools/apply_patches.py --working-folder ${CMAKE_CURRENT_BINARY_DIR}/libssh2-${VERSION_EXTERNAL}/src/TARGET_libssh2 --patch-folder ${CMAKE_CURRENT_SOURCE_DIR}/patches --strip 1
                     CMAKE_ARGS ${PRJ_CMAKE_ARGS}
                     INSTALL_COMMAND make install DESTDIR=${CMAKE_CURRENT_BINARY_DIR}/install
                     TEST_AFTER_INSTALL 1
