@@ -1,0 +1,12 @@
+diff -uNr libgit2-1.4.3/cmake/DefaultCFlags.cmake libgit2-1.4.3_patched/cmake/DefaultCFlags.cmake
+--- libgit2-1.4.3/cmake/DefaultCFlags.cmake	2022-04-12 22:17:07.000000000 +0200
++++ libgit2-1.4.3_patched/cmake/DefaultCFlags.cmake	2022-04-13 18:01:10.185045290 +0200
+@@ -113,6 +113,8 @@
+ 		add_c_flag_IF_SUPPORTED(-fvisibility=hidden)
+ 
+ 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
++	else()
++		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+ 	endif()
+ 
+ 	if(MINGW)
