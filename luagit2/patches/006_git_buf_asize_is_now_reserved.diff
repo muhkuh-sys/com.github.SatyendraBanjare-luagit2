@@ -1,0 +1,11 @@
+diff -uNr luagit2-master/src/luagit2/buf/lua_buf_help.c luagit2-master_patched/src/luagit2/buf/lua_buf_help.c
+--- luagit2-master/src/luagit2/buf/lua_buf_help.c	2022-04-13 16:51:37.736003033 +0200
++++ luagit2-master_patched/src/luagit2/buf/lua_buf_help.c	2022-04-13 16:52:14.251976702 +0200
+@@ -18,6 +18,6 @@
+ void lua_git_buf_init(luagit2_buf *ptBuf)
+ {
+ 	ptBuf->buf.ptr = NULL;
+-	ptBuf->buf.asize = 0;
++	ptBuf->buf.reserved = 0;
+ 	ptBuf->buf.size = 0;
+ }
