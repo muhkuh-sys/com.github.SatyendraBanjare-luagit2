@@ -25,9 +25,9 @@ diff -uNr luagit2-master/CMakeLists.txt luagit2-master_patched/CMakeLists.txt
 -target_link_libraries (${PROJECT_NAME} lua5.3 git2)
 +
 +add_library (${PROJECT_NAME} SHARED ${SOURCES})
-+target_link_libraries (${PROJECT_NAME} ${LUA_LIBRARIES} ${LIBGIT2_LIBRARY} ${LIBSSL_LIBRARY} ${LIBCRYPTO_LIBRARY} ${LIBSSH2_LIBRARY} ${LIBGCRYPT_LIBRARY} ${LIBGPG_ERROR_LIBRARY} pthread)
++target_link_libraries (${PROJECT_NAME} ${LIBGIT2_LIBRARY} ${LIBSSL_LIBRARY} ${LIBCRYPTO_LIBRARY} ${LIBSSH2_LIBRARY} ${LIBGCRYPT_LIBRARY} ${LIBGPG_ERROR_LIBRARY} pthread)
 +IF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-+	TARGET_LINK_LIBRARIES(${PROJECT_NAME} rpcrt4 crypt32 winhttp ws2_32)
++	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${LUA_LIBRARIES} rpcrt4 crypt32 winhttp ws2_32)
 +ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Windows")
  set_target_properties (${PROJECT_NAME} PROPERTIES PREFIX "")
  install(TARGETS ${PROJECT_NAME} DESTINATION "${lib_dest}" )
