@@ -43,7 +43,7 @@ diff -uNr luagit2-master/src/luagit2/common/lua_common.c luagit2-master_patched/
 +		else
 +		{
 +			pcKey = lua_tostring(L, -2);
-+			printf("Found opt %s\n", pcKey);
++//			printf("Found opt %s\n", pcKey);
 +
 +			/* Look for the key in the options table. */
 +			ptCnt = ptOptions;
@@ -75,7 +75,7 @@ diff -uNr luagit2-master/src/luagit2/common/lua_common.c luagit2-master_patched/
 +					iOption = lua_toboolean(L, -1);
 +					/* Store the integer. */
 +					*tAdr.pi = iOption;
-+					printf("%s = %d\n", pcKey, iOption);
++//					printf("%s = %d\n", pcKey, iOption);
 +					break;
 +
 +				case OPTION_TYPE_NUMBER_AS_INT:
@@ -87,7 +87,7 @@ diff -uNr luagit2-master/src/luagit2/common/lua_common.c luagit2-master_patched/
 +					{
 +						iOption = lua_tointeger(L, -1);
 +						*tAdr.pi = iOption;
-+						printf("%s = %d\n", pcKey, iOption);
++//						printf("%s = %d\n", pcKey, iOption);
 +					}
 +					break;
 +
@@ -106,7 +106,7 @@ diff -uNr luagit2-master/src/luagit2/common/lua_common.c luagit2-master_patched/
 +						else
 +						{
 +							*tAdr.pi = iOption;
-+							printf("%s = %d\n", pcKey, iOption);
++//							printf("%s = %d\n", pcKey, iOption);
 +						}
 +					}
 +					break;
@@ -123,7 +123,7 @@ diff -uNr luagit2-master/src/luagit2/common/lua_common.c luagit2-master_patched/
 +						pcOption = lua_tostring(L, -1);
 +						/* Store the pointer to the string. */
 +						*tAdr.ppc = pcOption;
-+						printf("%s = %s\n", pcKey, pcOption);
++//						printf("%s = %s\n", pcKey, pcOption);
 +					}
 +					break;
 +				}
