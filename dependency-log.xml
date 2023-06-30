@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependency-log>
+	<dependencies>
+		<dependency group="com.github.SatyendraBanjare" module="luagit2" artifact="lua5.4-luagit2" version="0.0.1.4"/>
+		<dependency group="net.zlib" module="zlib" artifact="zlib" version="1.2.13.1"/>
+		<dependency group="org.lua" module="lua" artifact="lua" version="5.4.6.1"/>
+	</dependencies>
+	<build-dependencies>
+	</build-dependencies>
+</dependency-log>
