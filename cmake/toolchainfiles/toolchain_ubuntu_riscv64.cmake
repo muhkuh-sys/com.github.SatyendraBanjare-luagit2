@@ -5,8 +5,7 @@ set(CMAKE_SYSTEM_PROCESSOR riscv64)
 # Source https://stackoverflow.com/questions/2670121/using-cmake-with-gnu-make-how-can-i-see-the-exact-commands
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(PRJ_DIR ${CMAKE_HOME_DIRECTORY})
-set(PKGBASE ${PRJ_DIR}/build/riscv64/packages)
+set(PKGBASE ${WORKING_DIR}/riscv64/packages)
 
 set(tools /usr/bin)
 set(CMAKE_C_COMPILER ${tools}/riscv64-linux-gnu-gcc)
